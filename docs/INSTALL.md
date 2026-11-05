@@ -18,30 +18,30 @@ bundles. The relevant part:
 ```json
 {
   "dependencies": {
-    "@local/research-host": "link:/path/to/repo/plugins/active/research-host",
-    "@local/research-workspace": "link:/path/to/repo/plugins/active/research-workspace",
-    "@local/research-preset": "link:/path/to/repo/plugins/active/research-preset",
-    "@local/research-preset-cn-social": "link:/path/to/repo/plugins/active/research-preset-cn-social",
-    "@local/research-connectors": "link:/path/to/repo/plugins/active/research-connectors",
-    "@local/research-hub": "link:/path/to/repo/plugins/active/research-hub",
-    "@local/research-phase2-litdb": "link:/path/to/repo/plugins/active/research-phase2-litdb",
-    "@local/research-phase2-notebook": "link:/path/to/repo/plugins/active/research-phase2-notebook",
-    "@local/research-phase2-replay": "link:/path/to/repo/plugins/active/research-phase2-replay"
+    "@peishenglai3-hash/dsh-research-host": "link:/path/to/repo/plugins/active/research-host",
+    "@peishenglai3-hash/dsh-research-workspace": "link:/path/to/repo/plugins/active/research-workspace",
+    "@peishenglai3-hash/dsh-research-preset": "link:/path/to/repo/plugins/active/research-preset",
+    "@peishenglai3-hash/dsh-research-preset-cn-social": "link:/path/to/repo/plugins/active/research-preset-cn-social",
+    "@peishenglai3-hash/dsh-research-connectors": "link:/path/to/repo/plugins/active/research-connectors",
+    "@peishenglai3-hash/dsh-research-hub": "link:/path/to/repo/plugins/active/research-hub",
+    "@peishenglai3-hash/dsh-research-phase2-litdb": "link:/path/to/repo/plugins/active/research-phase2-litdb",
+    "@peishenglai3-hash/dsh-research-phase2-notebook": "link:/path/to/repo/plugins/active/research-phase2-notebook",
+    "@peishenglai3-hash/dsh-research-phase2-replay": "link:/path/to/repo/plugins/active/research-phase2-replay"
   },
   "dsh": {
     "profile": {
       "bundles": [
         "@deepseek-ai/dsh-base",
         "@deepseek-ai/dsh-web-app",
-        "@local/research-host",
-        "@local/research-workspace",
-        "@local/research-preset",
-        "@local/research-preset-cn-social",
-        "@local/research-connectors",
-        "@local/research-hub",
-        "@local/research-phase2-litdb",
-        "@local/research-phase2-notebook",
-        "@local/research-phase2-replay"
+        "@peishenglai3-hash/dsh-research-host",
+        "@peishenglai3-hash/dsh-research-workspace",
+        "@peishenglai3-hash/dsh-research-preset",
+        "@peishenglai3-hash/dsh-research-preset-cn-social",
+        "@peishenglai3-hash/dsh-research-connectors",
+        "@peishenglai3-hash/dsh-research-hub",
+        "@peishenglai3-hash/dsh-research-phase2-litdb",
+        "@peishenglai3-hash/dsh-research-phase2-notebook",
+        "@peishenglai3-hash/dsh-research-phase2-replay"
       ]
     }
   }
@@ -54,7 +54,7 @@ Verify the composition without booting a UI:
 dsh --dump-config --profile <name>
 ```
 
-You should see nine `@local/research-*` rows and **no** `research-phase2-exec`.
+You should see nine `@peishenglai3-hash/dsh-research-*` rows and **no** `research-phase2-exec`.
 
 ### The profile this repository was actually tested against
 
