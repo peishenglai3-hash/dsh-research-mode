@@ -11,6 +11,20 @@ overstates what it proves will be rejected.**
 3. If it changes what an existing field *means*, stop — that needs a written decision first,
    because existing `.research` directories on disk would silently change meaning.
 
+## This repository is the source of truth
+
+Development happens here, not in a private mirror. A change lands as a branch, the verification
+below must be green, and it merges to `main`. If you change which bundles a profile composes,
+regenerate the matrix in the same PR:
+
+```bash
+dsh --dump-config --profile <name> > dump.txt
+node tools/release/profile-composition.mjs --profile <name> --from dump.txt
+```
+
+`docs/PROFILE-COMPOSITION.md` is generated — a hand-edited copy will be overwritten, and a stale
+copy is worse than none.
+
 ## Verification
 
 ```bash
@@ -22,6 +36,11 @@ node tools/w01/normalize-eol.mjs --check
 ```
 
 All must pass. There are no third-party runtime dependencies and we would like to keep it that way.
+
+Two things these commands do **not** cover, which you must therefore state explicitly in a PR:
+a mounted-bundle check (tests import internals; they do not mount the plugin), and a GUI check
+(headless Node cannot see the sidebar). If your change touches either, say "not verified" rather
+than implying the suite covers it.
 
 ## Claims
 

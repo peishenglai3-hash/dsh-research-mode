@@ -108,9 +108,17 @@ than none.
 
 ## Status
 
-Early. The evidence layer and the local data layout are exercised by a real acceptance suite;
-the reading/parsing path currently depends on an external PDF parser (Docling) and is documented
-as such, including its known timeout issue. Interfaces may change before 1.0.
+Early — `v0.1.0`. The evidence layer and the local data layout are exercised by a real acceptance
+suite; the reading/parsing path depends on an external PDF parser (Docling) and is documented as
+such, including its known timeout issue. Interfaces may change before 1.0.
+
+**This repository is the source of truth.** Development, issues and releases happen here. See
+[`CONTRIBUTING.md`](./CONTRIBUTING.md) for the workflow and for the two things the test suite does
+*not* cover (bundle mounting and the GUI).
+
+Packaging: the bundles are currently installed by `link:` from a clone. npm publication is in
+preparation so they can be installed as ordinary packages; until that lands, follow
+[`docs/INSTALL.md`](./docs/INSTALL.md).
 
 ## License
 
