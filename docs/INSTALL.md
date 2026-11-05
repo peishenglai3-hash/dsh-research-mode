@@ -56,6 +56,41 @@ dsh --dump-config --profile <name>
 
 You should see nine `@local/research-*` rows and **no** `research-phase2-exec`.
 
+### The profile this repository was actually tested against
+
+The matrix is generated, not written: [`PROFILE-COMPOSITION.md`](./PROFILE-COMPOSITION.md) lists
+every composed bundle row by row, and says which ones come from this repository, which from the
+harness, and which from neither. Regenerate it after changing a profile:
+
+```bash
+dsh --dump-config --profile <name> > dump.txt     # capture once
+node tools/release/profile-composition.mjs --profile <name> --from dump.txt
+```
+
+The verified reference profile composes **13 rows**: 9 from this repository, 2 from the harness
+(`dsh-base`, `dsh-web-app`), 1 profile-level patch, and **1 external** (`@local/porting-docling`).
+That last one is the point of the matrix: a clone of this repository reproduces 9 of 13 rows, and
+the document says so rather than implying full reproducibility.
+
+### A failure mode worth knowing
+
+If a profile lists a bundle whose dependency was never installed, `--dump-config` still prints a
+tree — but the first line is a skip notice:
+
+```text
+dsh: skipping profile bundle "@local/porting-docling": ... cannot resolve ...
+```
+
+The tree then *looks* healthy while that row is simply absent. `profile-composition.mjs` treats
+that line as a warning and refuses to print an empty matrix, because a silently incomplete
+composition is exactly the failure this document exists to catch. Repair with the command the
+harness itself suggests:
+
+```bash
+dsh plugin --profile <name> install
+```
+
+
 ## Deliberately not included
 
 `research-phase2-exec` (notebook cell execution and argv replay) is **absent on purpose**. Those
