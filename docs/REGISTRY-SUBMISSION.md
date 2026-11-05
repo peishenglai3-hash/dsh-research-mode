@@ -21,10 +21,27 @@ does not publish anything.
 
 | | |
 |---|---|
-| packages ready to publish | **9** |
+| published | **9 / 9** on npm, verified by installing them back from the registry |
 | excluded on purpose | 1 (`research-phase2-exec`, private: true — it executes code) |
-| preflight | `PASS (109/109)` including `npm pack` tarball checks |
-| **blocked on** | **`npm login`** — the machine has no npm credentials (`ENEEDAUTH`) |
+| registry submission | issue https://github.com/dshworks/awesome-dsh-plugins/issues/221 |
+| discovery | repository topic `dsh-plugin` set, which is the registry's scan entry |
+
+### What publishing actually required
+
+npm refused every non-interactive path with `E403`/`EOTP`:
+
+- a granular token without "bypass 2FA" → `E403`;
+- the session token from `npm login` → `EOTP`;
+- `deprecate` (a write on an existing package) → `EOTP` too.
+
+The account uses a **security key (WebAuthn)**, not a TOTP app, so there was no 6-digit code to
+supply. The working path was the browser challenge with the "do not challenge npm publish from
+this IP for 5 minutes" box ticked, after which a single `npm publish --workspaces` in a real TTY
+published the remaining eight in that window.
+
+This is worth recording because the failure messages point at the token, and the token is not the
+problem: npm now requires interactive 2FA for writes and is restricting bypass-2FA tokens for
+direct publishing.
 
 ## Package names
 
