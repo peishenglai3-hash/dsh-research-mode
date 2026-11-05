@@ -1,4 +1,4 @@
-// @local/research-workspace — browser half (Phase 1, Host-only read model).
+// @peishenglai3-hash/dsh-research-workspace — browser half (Phase 1, Host-only read model).
 //
 // Two native seats:
 //   sidebar.panellist : one "科研 / Research" entry
@@ -11,7 +11,7 @@
 // artifact index.
 
 window.__ModuleLoader__.load({
-  id: '@local/research-workspace',
+  id: '@peishenglai3-hash/dsh-research-workspace',
   factory(require) {
     const React = require('react')
     const h = React.createElement

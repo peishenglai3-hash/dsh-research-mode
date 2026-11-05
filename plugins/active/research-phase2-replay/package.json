@@ -1,11 +1,35 @@
 {
-  "name": "@local/research-phase2-replay",
+  "name": "@peishenglai3-hash/dsh-research-phase2-replay",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "description": "Phase 2 Replay plan: read-only artifact/environment/review inventory.",
-  "exports": { ".": "./index.js", "./package.json": "./package.json" },
-  "files": ["index.js", "lib/plan.js", "cordis.patch.yml", "README.md"],
-  "engines": { "node": "^22.19.0 || >=24.0.0", "dsh": ">=0.2.1-rc.2 <0.3.0" },
-  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "README.md",
+    "cordis.patch.yml",
+    "index.js",
+    "lib/plan.js",
+    "package.json"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": ">=0.2.1-rc.2 <0.3.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peishenglai3-hash/dsh-research-mode.git",
+    "directory": "plugins/active/research-phase2-replay"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

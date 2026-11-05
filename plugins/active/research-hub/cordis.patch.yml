@@ -1,4 +1,4 @@
 - insert:
     - id: research-hub
-      name: '@local/research-hub'
+      name: '@peishenglai3-hash/dsh-research-hub'
       config: {}

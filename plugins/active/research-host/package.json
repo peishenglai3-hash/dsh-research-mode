@@ -1,11 +1,36 @@
 {
-  "name": "@local/research-host",
+  "name": "@peishenglai3-hash/dsh-research-host",
   "version": "0.2.0",
-  "private": true,
   "type": "module",
   "description": "Phase 1 Host-only research store and tools for DeepSeek Harness.",
-  "exports": { ".": "./index.js", "./package.json": "./package.json" },
-  "files": ["index.js", "lib", "cordis.patch.yml", "README.md", "VERIFY.md"],
-  "engines": { "node": "^22.19.0 || >=24.0.0", "dsh": ">=0.2.1-rc.2 <0.3.0" },
-  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "README.md",
+    "VERIFY.md",
+    "cordis.patch.yml",
+    "index.js",
+    "lib",
+    "package.json"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": ">=0.2.1-rc.2 <0.3.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peishenglai3-hash/dsh-research-mode.git",
+    "directory": "plugins/active/research-host"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

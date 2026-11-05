@@ -8,5 +8,5 @@ and reports cell order, execution counts, output counts, imports and gaps.
 It does **not** execute cells, mutate the notebook, install dependencies or clear
 outputs. Execution requires explicit user approval and a kernel outside this tool.
 
-Rollback: remove the `@local/research-phase2-notebook` bundle; no notebook is
+Rollback: remove the `@peishenglai3-hash/dsh-research-phase2-notebook` bundle; no notebook is
 modified by this tool.

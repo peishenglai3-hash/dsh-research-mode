@@ -1,4 +1,4 @@
 - insert:
     - id: research-phase2-replay
-      name: '@local/research-phase2-replay'
+      name: '@peishenglai3-hash/dsh-research-phase2-replay'
       config: {}

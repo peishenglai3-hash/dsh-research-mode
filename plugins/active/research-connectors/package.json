@@ -1,7 +1,6 @@
 {
-  "name": "@local/research-connectors",
+  "name": "@peishenglai3-hash/dsh-research-connectors",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "description": "Read-only social-science connectors for DeepSeek Harness Research Mode: World Bank, ILOSTAT, DataCite, OSF/SocArXiv, PKU Dataverse, and manual NBS snapshots.",
   "exports": {
@@ -9,11 +8,12 @@
     "./package.json": "./package.json"
   },
   "files": [
+    "README.md",
+    "VERIFY.md",
+    "cordis.patch.yml",
     "index.js",
     "lib/connectors.js",
-    "cordis.patch.yml",
-    "README.md",
-    "VERIFY.md"
+    "package.json"
   ],
   "engines": {
     "node": "^22.19.0 || >=24.0.0",
@@ -23,5 +23,14 @@
     "bundle": {
       "patch": "./cordis.patch.yml"
     }
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peishenglai3-hash/dsh-research-mode.git",
+    "directory": "plugins/active/research-connectors"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

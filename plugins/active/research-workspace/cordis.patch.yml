@@ -1,4 +1,4 @@
 - insert:
     - id: research-workspace
-      name: '@local/research-workspace'
+      name: '@peishenglai3-hash/dsh-research-workspace'
       config: {}
