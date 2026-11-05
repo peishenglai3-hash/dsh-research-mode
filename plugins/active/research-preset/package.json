@@ -1,5 +1,5 @@
 {
-  "name": "@peishenglai3-hash/dsh-research-preset",
+  "name": "@peisheng_lai/dsh-research-preset",
   "version": "0.2.0",
   "type": "module",
   "description": "Phase 1 research preset composition for DeepSeek Harness.",

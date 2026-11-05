@@ -8,4 +8,4 @@ Phase 2 initial slice. Read-only `research_litdb_search` over the user's local
 - Returns `backend`, database SHA256, and nine fields per row.
 - Not a full-journal corpus; results must be described as the local sample.
 
-Rollback: remove the `@peishenglai3-hash/dsh-research-phase2-litdb` bundle; no data is migrated.
+Rollback: remove the `@peisheng_lai/dsh-research-phase2-litdb` bundle; no data is migrated.

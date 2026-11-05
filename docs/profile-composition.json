@@ -1,6 +1,6 @@
 {
   "profile": "w02-alpha",
-  "generatedFrom": "captured --dump-config output (w02-alpha-dump-npmnames.txt)",
+  "generatedFrom": "captured --dump-config output (w02-alpha-dump-lai.txt)",
   "totals": {
     "composedBundles": 13,
     "inRepo": 9,
@@ -228,7 +228,7 @@
       ]
     },
     {
-      "bundle": "@peishenglai3-hash/dsh-research-host",
+      "bundle": "@peisheng_lai/dsh-research-host",
       "kind": "in-repo",
       "version": "0.2.0",
       "path": "plugins/active/research-host",
@@ -240,7 +240,7 @@
       ]
     },
     {
-      "bundle": "@peishenglai3-hash/dsh-research-workspace",
+      "bundle": "@peisheng_lai/dsh-research-workspace",
       "kind": "in-repo",
       "version": "0.2.0",
       "path": "plugins/active/research-workspace",
@@ -252,7 +252,7 @@
       ]
     },
     {
-      "bundle": "@peishenglai3-hash/dsh-research-preset",
+      "bundle": "@peisheng_lai/dsh-research-preset",
       "kind": "in-repo",
       "version": "0.2.0",
       "path": "plugins/active/research-preset",
@@ -264,7 +264,7 @@
       ]
     },
     {
-      "bundle": "@peishenglai3-hash/dsh-research-preset-cn-social",
+      "bundle": "@peisheng_lai/dsh-research-preset-cn-social",
       "kind": "in-repo",
       "version": "0.1.0",
       "path": "plugins/active/research-preset-cn-social",
@@ -276,7 +276,7 @@
       ]
     },
     {
-      "bundle": "@peishenglai3-hash/dsh-research-connectors",
+      "bundle": "@peisheng_lai/dsh-research-connectors",
       "kind": "in-repo",
       "version": "0.1.0",
       "path": "plugins/active/research-connectors",
@@ -288,7 +288,7 @@
       ]
     },
     {
-      "bundle": "@peishenglai3-hash/dsh-research-hub",
+      "bundle": "@peisheng_lai/dsh-research-hub",
       "kind": "in-repo",
       "version": "0.1.0",
       "path": "plugins/active/research-hub",
@@ -300,7 +300,7 @@
       ]
     },
     {
-      "bundle": "@peishenglai3-hash/dsh-research-phase2-litdb",
+      "bundle": "@peisheng_lai/dsh-research-phase2-litdb",
       "kind": "in-repo",
       "version": "0.1.0",
       "path": "plugins/active/research-phase2-litdb",
@@ -312,7 +312,7 @@
       ]
     },
     {
-      "bundle": "@peishenglai3-hash/dsh-research-phase2-notebook",
+      "bundle": "@peisheng_lai/dsh-research-phase2-notebook",
       "kind": "in-repo",
       "version": "0.1.0",
       "path": "plugins/active/research-phase2-notebook",
@@ -324,7 +324,7 @@
       ]
     },
     {
-      "bundle": "@peishenglai3-hash/dsh-research-phase2-replay",
+      "bundle": "@peisheng_lai/dsh-research-phase2-replay",
       "kind": "in-repo",
       "version": "0.1.0",
       "path": "plugins/active/research-phase2-replay",

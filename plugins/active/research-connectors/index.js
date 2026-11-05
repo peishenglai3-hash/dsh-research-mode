@@ -1,4 +1,4 @@
-// @peishenglai3-hash/dsh-research-connectors — Host half.
+// @peisheng_lai/dsh-research-connectors — Host half.
 //
 // Six read-only research connectors, registered as native DSH tools. No DSH
 // package is imported: the definitions use raw JSON Schema, which keeps this

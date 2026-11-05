@@ -1,5 +1,5 @@
 {
-  "name": "@peishenglai3-hash/dsh-research-connectors",
+  "name": "@peisheng_lai/dsh-research-connectors",
   "version": "0.1.0",
   "type": "module",
   "description": "Read-only social-science connectors for DeepSeek Harness Research Mode: World Bank, ILOSTAT, DataCite, OSF/SocArXiv, PKU Dataverse, and manual NBS snapshots.",

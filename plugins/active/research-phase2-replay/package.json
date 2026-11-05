@@ -1,5 +1,5 @@
 {
-  "name": "@peishenglai3-hash/dsh-research-phase2-replay",
+  "name": "@peisheng_lai/dsh-research-phase2-replay",
   "version": "0.1.0",
   "type": "module",
   "description": "Phase 2 Replay plan: read-only artifact/environment/review inventory.",

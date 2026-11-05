@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: '@peishenglai3-hash/dsh-research-hub',
+  id: '@peisheng_lai/dsh-research-hub',
   factory(require) {
     const React = require('react')
     const h = React.createElement

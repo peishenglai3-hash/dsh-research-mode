@@ -30,15 +30,15 @@ does not publish anything.
 
 | directory | npm name | version |
 |---|---|---|
-| `research-host` | `@peishenglai3-hash/dsh-research-host` | 0.2.0 |
-| `research-workspace` | `@peishenglai3-hash/dsh-research-workspace` | 0.2.0 |
-| `research-preset` | `@peishenglai3-hash/dsh-research-preset` | 0.2.0 |
-| `research-preset-cn-social` | `@peishenglai3-hash/dsh-research-preset-cn-social` | 0.1.0 |
-| `research-connectors` | `@peishenglai3-hash/dsh-research-connectors` | 0.1.0 |
-| `research-hub` | `@peishenglai3-hash/dsh-research-hub` | 0.1.0 |
-| `research-phase2-litdb` | `@peishenglai3-hash/dsh-research-phase2-litdb` | 0.1.0 |
-| `research-phase2-notebook` | `@peishenglai3-hash/dsh-research-phase2-notebook` | 0.1.0 |
-| `research-phase2-replay` | `@peishenglai3-hash/dsh-research-phase2-replay` | 0.1.0 |
+| `research-host` | `@peisheng_lai/dsh-research-host` | 0.2.0 |
+| `research-workspace` | `@peisheng_lai/dsh-research-workspace` | 0.2.0 |
+| `research-preset` | `@peisheng_lai/dsh-research-preset` | 0.2.0 |
+| `research-preset-cn-social` | `@peisheng_lai/dsh-research-preset-cn-social` | 0.1.0 |
+| `research-connectors` | `@peisheng_lai/dsh-research-connectors` | 0.1.0 |
+| `research-hub` | `@peisheng_lai/dsh-research-hub` | 0.1.0 |
+| `research-phase2-litdb` | `@peisheng_lai/dsh-research-phase2-litdb` | 0.1.0 |
+| `research-phase2-notebook` | `@peisheng_lai/dsh-research-phase2-notebook` | 0.1.0 |
+| `research-phase2-replay` | `@peisheng_lai/dsh-research-phase2-replay` | 0.1.0 |
 
 Versions are **not** unified: the three 0.2.0 packages are the older, more-exercised ones and
 downgrading them to match would be a lie about their maturity.

@@ -1,5 +1,5 @@
 {
-  "name": "@peishenglai3-hash/dsh-research-phase2-notebook",
+  "name": "@peisheng_lai/dsh-research-phase2-notebook",
   "version": "0.1.0",
   "type": "module",
   "description": "Phase 2 Notebook-lite: read-only .ipynb inspection (no execution).",

@@ -5,5 +5,5 @@
 # resolution. Every tool is read-only; NBS is a local CSV snapshot by design.
 - insert:
     - id: research-connectors
-      name: '@peishenglai3-hash/dsh-research-connectors'
+      name: '@peisheng_lai/dsh-research-connectors'
       config: {}
