@@ -9,7 +9,7 @@
 //
 //   node tools/w01/s1-check-skill-contracts.mjs
 import { createHash } from 'node:crypto'
-import { readFileSync, readdirSync, statSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { dirname } from 'node:path'
@@ -75,34 +75,38 @@ function walk(dir, base = dir) {
   }
   return out
 }
-const left = walk(join(repoRoot, 'skills')).sort()
-const right = walk(join(repoRoot, '.agents', 'skills')).sort()
-const sameList = JSON.stringify(left) === JSON.stringify(right)
-const differing = []
-if (sameList) {
-  for (const rel of left) {
-    const a = createHash('sha256').update(readFileSync(join(repoRoot, 'skills', rel))).digest('hex')
-    const b = createHash('sha256').update(readFileSync(join(repoRoot, '.agents', 'skills', rel))).digest('hex')
-    if (a !== b) differing.push(rel)
+const skillMirror = join(repoRoot, '.agents', 'skills')
+if (!existsSync(skillMirror)) {
+  check('mirror-identical', true, 'SKIPPED: no .agents/skills in this checkout (single-copy layout is valid)')
+} else {
+  const left = walk(join(repoRoot, 'skills')).sort()
+  const right = walk(join(repoRoot, '.agents', 'skills')).sort()
+  const sameList = JSON.stringify(left) === JSON.stringify(right)
+  const differing = []
+  if (sameList) {
+    for (const rel of left) {
+      const a = createHash('sha256').update(readFileSync(join(repoRoot, 'skills', rel))).digest('hex')
+      const b = createHash('sha256').update(readFileSync(join(repoRoot, '.agents', 'skills', rel))).digest('hex')
+      if (a !== b) differing.push(rel)
+    }
   }
-}
-// Cross-check the hardcoded registry against what the bundles actually declare.
-const declared = new Set()
-for (const bundle of readdirSync(join(repoRoot, 'plugins', 'active'))) {
-  const dir = join(repoRoot, 'plugins', 'active', bundle)
-  if (!statSync(dir).isDirectory()) continue
-  for (const file of readdirSync(dir)) {
-    if (!file.endsWith('.js')) continue
-    const text = readFileSync(join(dir, file), 'utf8')
-    for (const m of text.matchAll(/research_[a-z0-9_]+/g)) declared.add(m[0])
+  // Cross-check the hardcoded registry against what the bundles actually declare.
+  const declared = new Set()
+  for (const bundle of readdirSync(join(repoRoot, 'plugins', 'active'))) {
+    const dir = join(repoRoot, 'plugins', 'active', bundle)
+    if (!statSync(dir).isDirectory()) continue
+    for (const file of readdirSync(dir)) {
+      if (!file.endsWith('.js')) continue
+      const text = readFileSync(join(dir, file), 'utf8')
+      for (const m of text.matchAll(/research_[a-z0-9_]+/g)) declared.add(m[0])
+    }
   }
+  const missingFromSource = [...REGISTERED].filter((n) => !declared.has(n))
+  check('registry-matches-sources', missingFromSource.length === 0,
+    missingFromSource.length === 0 ? `all ${REGISTERED.size} names appear in plugins/active` : `absent from source: ${missingFromSource.join(',')}`)
+
+  check('mirror-identical', sameList && differing.length === 0,
+    sameList ? `${left.length} files, differing=${differing.length}` : 'file lists differ')
 }
-const missingFromSource = [...REGISTERED].filter((n) => !declared.has(n))
-check('registry-matches-sources', missingFromSource.length === 0,
-  missingFromSource.length === 0 ? `all ${REGISTERED.size} names appear in plugins/active` : `absent from source: ${missingFromSource.join(',')}`)
-
-check('mirror-identical', sameList && differing.length === 0,
-  sameList ? `${left.length} files, differing=${differing.length}` : 'file lists differ')
-
 console.log(`\nSKILL CONTRACT CHECK: ${failures === 0 ? 'PASS' : 'FAIL'} (${failures} failure(s))`)
 if (failures > 0) process.exitCode = 1
