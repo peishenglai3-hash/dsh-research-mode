@@ -1,0 +1,9 @@
+# Research Mode connectors (Phase 0/1).
+#
+# Host-only bundle: six read-only tools are registered by index.js. No DSH core
+# package is imported, so the profile-installed copy cannot fail on peer
+# resolution. Every tool is read-only; NBS is a local CSV snapshot by design.
+- insert:
+    - id: research-connectors
+      name: '@local/research-connectors'
+      config: {}

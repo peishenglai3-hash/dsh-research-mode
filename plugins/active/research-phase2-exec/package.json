@@ -1,0 +1,11 @@
+{
+  "name": "@local/research-phase2-exec",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Executable Notebook/Replay tools under DSH sandbox with explicit confirmation.",
+  "exports": { ".": "./index.js", "./package.json": "./package.json" },
+  "files": ["index.js", "lib/run.js", "cordis.patch.yml", "README.md"],
+  "engines": { "node": "^22.19.0 || >=24.0.0", "dsh": ">=0.2.1-rc.2 <0.3.0" },
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "@local/research-host",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Phase 1 Host-only research store and tools for DeepSeek Harness.",
+  "exports": { ".": "./index.js", "./package.json": "./package.json" },
+  "files": ["index.js", "lib", "cordis.patch.yml", "README.md", "VERIFY.md"],
+  "engines": { "node": "^22.19.0 || >=24.0.0", "dsh": ">=0.2.1-rc.2 <0.3.0" },
+  "dsh": { "bundle": { "patch": "./cordis.patch.yml" } }
+}

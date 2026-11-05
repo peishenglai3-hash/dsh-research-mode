@@ -1,0 +1,27 @@
+{
+  "name": "@local/research-connectors",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Read-only social-science connectors for DeepSeek Harness Research Mode: World Bank, ILOSTAT, DataCite, OSF/SocArXiv, PKU Dataverse, and manual NBS snapshots.",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib/connectors.js",
+    "cordis.patch.yml",
+    "README.md",
+    "VERIFY.md"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0",
+    "dsh": ">=0.2.1-rc.2 <0.3.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+# local research data — never commit
+.research/
+*.science
+.litdb/
+
+# runtime
+node_modules/
+*.log
+tmp/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,4 @@
+- insert:
+    - id: research-phase2-exec
+      name: '@local/research-phase2-exec'
+      config: {}

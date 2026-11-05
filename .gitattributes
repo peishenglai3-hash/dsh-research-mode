@@ -1,0 +1,17 @@
+# Pin line endings so `manifest.sha256` stays reproducible off-tree.
+#
+# W01-D1: this repository ships a byte-level integrity manifest. With
+# core.autocrlf=true and no .gitattributes, a fresh clone checked every text file
+# out as CRLF while the manifest had been computed over LF worktree bytes — 233 of
+# 234 entries failed verification on a clean clone (independent QA reproduction).
+# Pinning eol=lf makes the checkout bytes identical to the bytes the manifest hashes.
+* text=auto eol=lf
+
+# Binary assets must never be normalised.
+*.zip binary
+*.png binary
+*.ico binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.db binary

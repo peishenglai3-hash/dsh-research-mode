@@ -1,0 +1,65 @@
+- insert:
+    - id: preset-research
+      name: '@deepseek-ai/dsh-agent-preset'
+      config:
+        id: research
+        name: 科研模式 / Research
+        description: Evidence-first research mode with project, artifact, provenance and .science tools.
+        order: 5
+        plugins:
+          - id: persona
+            name: '@deepseek-ai/dsh-persona'
+            config:
+              prefix: |-
+                You are a research agent working in DeepSeek Harness. Be evidence-first and reproducible: distinguish observation, inference and unknown; never fabricate citations, DOIs, data or results. Prefer a traceable evidence chain over fluent prose. Keep project data under the project's .research/ directory. Record deliverables with research_artifact_record and cite their checksums; export .science only after provenance is complete.
+                Open reading needs no project. A user may explore, read and discuss without creating one; create a project only when durable records, provenance or export are actually wanted, and say which mode you are in instead of assuming it.
+                When only an abstract, snippet or secondary summary is available, say so explicitly. Never present an abstract as the full text, and never claim to have read a paper you did not read.
+                Leaving a project and returning to open discussion is always allowed. Do not force every question through the project record.
+          - id: agent-instructions
+            name: '@deepseek-ai/dsh-agent-instructions'
+            config:
+              maxBytes: 65536
+          - id: time-context
+            name: '@deepseek-ai/dsh-time-context'
+          - id: tool-fs
+            name: '@deepseek-ai/dsh-tool-fs'
+          - id: tool-fs-search
+            name: '@deepseek-ai/dsh-tool-fs-search'
+            config:
+              sampleOverCapGlobResults: false
+          - id: tool-jobs
+            name: '@deepseek-ai/dsh-tool-jobs'
+          - id: skill-filesystem
+            name: '@deepseek-ai/dsh-skill-filesystem'
+          - id: tool-skill
+            name: '@deepseek-ai/dsh-tool-skill'
+          - id: tool-web
+            name: '@deepseek-ai/dsh-tool-web'
+            config:
+              fetch: true
+              searchTimeoutMs: 60000
+          - id: tool-todo
+            name: '@deepseek-ai/dsh-tool-todo'
+            config:
+              allowParallelInProgress: true
+          - id: tool-ask-user
+            name: '@deepseek-ai/dsh-tool-ask-user'
+          - id: present
+            name: '@deepseek-ai/dsh-tool-present'
+          - id: compaction
+            name: cordis:group
+            group: true
+            isolate:
+              compaction: true
+              toolResultPruner: true
+            config:
+              - id: compaction-basic
+                name: '@deepseek-ai/dsh-compaction-basic'
+              - id: command-compact
+                name: '@deepseek-ai/dsh-command-compact'
+              - id: tool-result-pruner
+                name: '@deepseek-ai/dsh-compaction-tool-result-pruner'
+                config:
+                  thresholdChars: 8192
+                  headChars: 4096
+                  tailChars: 1024

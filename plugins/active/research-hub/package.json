@@ -1,0 +1,14 @@
+{
+  "name": "@local/research-hub",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Unified right-sidebar research hub: artifacts, provenance, reviewer and litdb in one entry.",
+  "exports": { ".": "./index.js", "./client": "./client.js", "./package.json": "./package.json" },
+  "files": ["index.js", "client.js", "cordis.patch.yml", "README.md"],
+  "engines": { "node": "^22.19.0 || >=24.0.0", "dsh": ">=0.2.1-rc.2 <0.3.0" },
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": { "platform": "web", "inject": ["@deepseek-ai/dsh-client-ui-sidebar-right", "@deepseek-ai/dsh-client-ui-layout", "@deepseek-ai/dsh-client-locale"] }
+  }
+}
