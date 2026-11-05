@@ -16,7 +16,7 @@ answer cannot be re-checked, handed over, or challenged. This project optimises 
 that can be: **a content-addressed artifact with a provenance record that says where it came from,
 what was actually run, and what remains unknown.**
 
-It is a set of plugins for [DeepSeek Harness](https://github.com/) (a plugin-based agent runtime),
+It is a set of plugins for DeepSeek Harness (a plugin-based agent runtime),
 plus skills that encode research discipline rather than research marketing.
 
 Designed for social-science work first (small samples, textual sources, local literature) — the
