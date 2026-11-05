@@ -20,7 +20,7 @@ function arg(name, fallback) {
   const i = process.argv.indexOf(`--${name}`)
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : fallback
 }
-const scope = arg('scope', '@peishenglai3-hash')
+const scope = arg('scope', '@peisheng_lai')
 const repoUrl = arg('repo', 'https://github.com/peishenglai3-hash/dsh-research-mode')
 const dryRun = process.argv.includes('--dry-run')
 
