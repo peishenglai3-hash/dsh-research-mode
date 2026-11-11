@@ -149,3 +149,46 @@ test('hub body renders an ambiguity picker instead of guessing a project', () =>
   assert.match(text, /不会自动猜测/)
   assert.equal(plugin._internals.scopeAfterChoice(scope, null).projectId, null)
 })
+
+// The provenance card's number has to mean the same thing as research_host's getProvenance.
+// The sidecar is a creation-time snapshot, so it still says "review has not run" after a review
+// is recorded; the host derives that face at read time, and this panel must do the same or the
+// two surfaces report different numbers for the same artifact.
+function sidecar(overrides = {}) {
+  const face = (status) => ({ status, value: status === 'available' ? 'recorded' : null })
+  return {
+    id: 'a'.repeat(64),
+    provenance: {
+      code: face('available'),
+      execution: face('unavailable'),
+      environment: face('available'),
+      messages: face('unavailable'),
+      reproducibility: face('available'),
+      review: face('unavailable'),
+      literature: face('available'),
+      ...overrides,
+    },
+  }
+}
+
+test('face summary counts an artifact with no recorded review the same way the sidecar does', () => {
+  const summary = plugin._internals.faceSummary(sidecar(), [])
+  assert.equal(summary.available, 4)
+  assert.equal(summary.total, 7)
+  assert.equal(summary.reviewDerived, false)
+})
+
+test('face summary derives the review face when a review record exists', () => {
+  const row = sidecar()
+  const summary = plugin._internals.faceSummary(row, [{ artifactId: row.id, decision: 'accept' }])
+  assert.equal(summary.available, 5, 'the recorded review makes the review face available')
+  assert.equal(summary.reviewDerived, true)
+})
+
+test('face summary keeps a denominator of 7 even for an older sidecar with fewer keys', () => {
+  const row = { id: 'b'.repeat(64), provenance: { reproducibility: { status: 'available' } } }
+  const summary = plugin._internals.faceSummary(row, [])
+  assert.equal(summary.total, 7, 'the denominator must not shrink with the sidecar')
+  assert.equal(summary.available, 1)
+})
+
