@@ -1,0 +1,17 @@
+{
+  "source": "synthetic-2page.pdf",
+  "note": "Two-anchor parse of a synthetic two-page PDF. The text is invented for plumbing tests and carries no scientific claim. Anchor ids follow Docling's structured output (#/texts/N); page numbers come from prov[0].page_no and are unavailable through the MCP text tools (see docs/w03/findings/lead-probes.md P-07).",
+  "pages": 2,
+  "anchors": [
+    {
+      "id": "#/texts/0",
+      "page": 1,
+      "text": "W02-S1 SYNTHETIC FIXTURE (NOT REAL RESEARCH DATA) Finding A: intermediate-organisation deficit is the core of social atomisation. Scope: this sentence is invented for a plumbing test and carries no scientific claim. ANCHOR-P1-UNIQUE-7F3A"
+    },
+    {
+      "id": "#/texts/1",
+      "page": 2,
+      "text": "W02-S1 SYNTHETIC FIXTURE - PAGE TWO Finding B: population mobility is one mechanism, not a definition. Scope: also invented; it exists only so a second page has distinct text. ANCHOR-P2-UNIQUE-C9D1"
+    }
+  ]
+}

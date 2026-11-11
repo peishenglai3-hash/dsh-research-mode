@@ -43,3 +43,9 @@ jobs:
 
       - name: npm publication metadata (offline; no --pack, no login)
         run: node tools/release/npm-preflight.mjs
+
+      # Proves the evidence layer end to end using a recorded parse fixture. It deliberately does
+      # NOT require the PDF parser: parser latency and locator granularity are measured facts
+      # (docs/w03/findings/lead-probes.md), not something a green check should paper over.
+      - name: Reading evidence loop (locator fidelity + verified read-back)
+        run: node tools/w03/verify-reading-loop.mjs
