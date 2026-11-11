@@ -64,6 +64,30 @@ What it does **not** establish:
 Legacy rounds without a `signature` are reported as unverifiable — deliberately, rather than being
 counted as valid.
 
+## What content addressing does **not** prove: wholesale replacement
+
+An artifact id is `sha256(bytes)`. That proves *"these bytes hash to this filename"*. It does not
+prove *"these bytes are what was recorded"*, because nothing here signs the artifact **set**.
+
+Concretely, someone with write access to a project directory can:
+
+1. write new bytes under `artifacts/<sha256(new)>`,
+2. write a matching `artifacts/<sha256(new)>.json` sidecar (and a review record if they want one),
+3. delete the originals.
+
+The result is internally consistent: `research_provenance_get` reports `payloadVerified: true`, the
+review face reports `available`, and `.science` export/import both succeed. The original id is
+simply gone (`unknown artifact`). This is not theoretical — it was reproduced independently during
+W03 (`docs/w03/W03-QA.md` §4).
+
+What *is* caught: editing a payload **in place** (the id and the bytes stop agreeing), editing the
+sidecar alone (recorded checksum vs. re-hashed payload disagree), and editing a review round without
+re-signing it (`review.signatureValid: false`).
+
+If you need replacement to be detectable, the missing piece is an authenticated anchor outside the
+attacker's write scope — a keyed signature, or an append-only log copied elsewhere. Until then,
+treat "verified" as **internally consistent**, not **unaltered**.
+
 ## Archival format (`.science`)
 
 `tar` + `gzip` containing:

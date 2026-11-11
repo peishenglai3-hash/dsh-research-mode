@@ -101,6 +101,10 @@ than none.
   unkeyed content hash. It proves the record was not edited; it does not prove identity.
 - **`review verify → valid` does not prove history is complete.** A single file cannot prove older
   rounds were not deleted or reordered. Rounds without signatures are reported as legacy, not valid.
+- **`payloadVerified: true` does not mean "unaltered".** It means the bytes hash to the artifact id.
+  Nothing signs the artifact *set*, so someone with write access can write new bytes under a new id
+  with a matching sidecar and delete the original — internally consistent, and undetectable from
+  inside the store. Editing a payload in place *is* caught. See `docs/EVIDENCE-MODEL.md`.
 - **There is no per-tool authorization gate.** A tool call is not approved by a human at runtime.
 - **`confirm=true` is a tool parameter, not human consent.** It is a speed bump, not a control.
 - **`.science` import read-only is declared, not enforced.** On Windows the copied tree is still writable.

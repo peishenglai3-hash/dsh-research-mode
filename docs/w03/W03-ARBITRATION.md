@@ -60,7 +60,7 @@
 | 7 | **安装文档如实**：npm 是真实路径；相对 `link:` 的解析基准说明；更正我自己写错的 PARTIAL 说法 | C0 | README 与代码一致性 |
 | 8 | **C2-a 配置**：受控 profile `toolCallTimeoutMs: 600000` | C2-a | `cordis.patch.yml`；回退=删行 |
 
-测试总数 **66 → 77**（4 守卫 + 4 完整性 + 3 Hub = 11 新增；`run-tests.mjs` 实跑为准）。
+测试总数 **66 → 80**（6 守卫 + 5 完整性 + 3 Hub = 14 新增；`run-tests.mjs` 实跑为准）。独立 QA 的推翻项已在 §3 表外补记（见 W03-QA.md 附录 B）。
 
 ---
 
