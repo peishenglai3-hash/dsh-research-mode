@@ -26,8 +26,13 @@ for (const bundle of readdirSync(activeDir).sort()) {
   try {
     if (!statSync(testDir).isDirectory()) continue
     entries = readdirSync(testDir).sort()
-  } catch {
-    continue
+  } catch (error) {
+    // A bundle with no test directory is normal. Any other failure (permissions, a broken
+    // junction, an I/O error) is not: skipping it silently would let a test directory drop out
+    // of the gate without anyone noticing.
+    if (error?.code === 'ENOENT') continue
+    console.error(`cannot inspect ${testDir}: ${error?.code ?? error?.message ?? error}`)
+    process.exit(3)
   }
   for (const entry of entries) {
     if (!entry.endsWith('.test.mjs')) continue
