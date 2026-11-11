@@ -4,6 +4,41 @@ All notable changes to this repository. Versions here are **repository milestone
 individual npm packages carry their own versions (see each `plugins/active/*/package.json`), and a
 repository milestone does not imply every package moved.
 
+## [0.1.2] — 2026-11-11
+
+Follow-up to an independent second-round review. Two bypasses it found are closed, and the
+reading-evidence verifier is now actually bound to its source.
+
+### Security
+
+- **The export guard could be skipped by renaming.** It matched `artifacts/<lowercase-hex>` only,
+  so renaming a tampered payload to uppercase hex exported and re-imported cleanly while the
+  sidecar still showed the original checksum. The name is now matched case-insensitively and
+  compared to the digest — the filename is never trusted as the identity.
+- **Export refuses an inconsistent artifact set.** A payload with no sidecar (or the reverse) is a
+  half-consistent archive waiting to be trusted; it now throws instead of packing.
+- **The litdb cache write path follows the same containment rule as the reads.** A junction at
+  `.research/projects/<id>` could put `.litdb/last-search.json` outside the workspace.
+
+### Fixed
+
+- **`verify-reading-loop.mjs` could be fooled by replacing the PDF.** It only hashed the source and
+  checked quotes against the parse fixture, so unrelated bytes passed. The fixture now declares
+  `sourceSha256`, each anchor's `ANCHOR-*` marker must occur in the source bytes, and the note
+  records the parse digest. 15 checks, up from 12.
+- **`registry-matches-sources` never ran** in the published layout: it sat inside the `else` branch
+  of the skill-mirror check, and this checkout has no `.agents/skills`. Moved out; it now reports
+  `all 24 names appear in plugins/active` on every run. Its remaining limitation (it checks that a
+  name is *mentioned*, not that it is *registered*) is stated in the script.
+- Added a containment regression test that fails if the notebook path check is removed — deleting
+  it previously left every notebook test green.
+
+### Documentation
+
+- `docs/w03/W03-QA.md` appendices B and C dispose of every finding from both independent rounds.
+  The reading-loop claim is downgraded to PARTIAL: it proves quote↔parse and parse↔source
+  agreement, not that the parser is right.
+
 ## [0.1.1] — 2026-11-11
 
 Read-path integrity, project-id validation, and self-verification. No new tools, no schema

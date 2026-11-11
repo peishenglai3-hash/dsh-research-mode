@@ -122,7 +122,7 @@ than none.
 
 ## Status
 
-Early — `v0.1.1` ([CHANGELOG](./CHANGELOG.md)). The evidence layer and the local data layout are
+Early — `v0.1.2` ([CHANGELOG](./CHANGELOG.md)). The evidence layer and the local data layout are
 exercised by a real acceptance suite and by CI; the reading/parsing path depends on an external PDF
 parser (Docling) and is documented as such, including its measured cost — conversions of the same
 two-page fixture took 115 s and 317 s, and the MCP surface exposes anchors but not page numbers.

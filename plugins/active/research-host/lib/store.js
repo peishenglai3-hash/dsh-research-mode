@@ -572,10 +572,14 @@ async function collectProjectFiles(workspace, projectId, io = nodeIO) {
     const digest = sha256(data)
     // A payload file is named by the sha256 of its bytes. If those bytes changed after recording,
     // export would otherwise rebuild the manifest around the tampered bytes and produce an archive
-    // that verifies perfectly on import — laundering the change instead of reporting it. Reading
-    // provenance now checks the payload too; export must not be the softer path.
-    const payload = archiveName.match(/^artifacts\/([0-9a-f]{64})$/)
-    if (payload && payload[1] !== digest) {
+    // that verifies perfectly on import — laundering the change instead of reporting it.
+    //
+    // The name is matched case-insensitively on purpose: an earlier version only matched
+    // lowercase hex, so renaming a tampered payload to uppercase skipped the check entirely
+    // (independent QA reproduced that bypass). The comparison is against the digest, so the
+    // name is never trusted as the identity.
+    const payload = archiveName.match(/^artifacts\/([0-9a-fA-F]{64})$/)
+    if (payload && payload[1].toLowerCase() !== digest) {
       throw new ScienceError(
         `artifact bytes no longer match their id: ${payload[1]} (payload hashes to ${digest}); `
         + 'the payload was modified after it was recorded, so exporting it would produce a '
@@ -591,6 +595,24 @@ async function collectProjectFiles(workspace, projectId, io = nodeIO) {
     entries = await io.readdir(artifactsDir)
   } catch (error) {
     if (error?.code !== 'ENOENT') throw error
+  }
+  // An artifact is the pair (payload, sidecar). Compare the two name sets before packing:
+  // a payload with no sidecar (or the reverse) means the set was edited, and exporting it would
+  // hand someone a half-consistent archive. Names are compared case-insensitively because NTFS
+  // resolves "ABC" and "abc" to the same file.
+  const payloadNames = new Set()
+  const sidecarNames = new Set()
+  for (const entry of entries) {
+    if (!entry.isFile()) continue
+    const match = entry.name.match(/^([0-9a-fA-F]{64})(\.json)?$/)
+    if (!match) continue
+    ;(match[2] ? sidecarNames : payloadNames).add(match[1].toLowerCase())
+  }
+  for (const key of payloadNames) {
+    if (!sidecarNames.has(key)) throw new ScienceError(`artifact payload has no sidecar: ${key}`)
+  }
+  for (const key of sidecarNames) {
+    if (!payloadNames.has(key)) throw new ScienceError(`artifact sidecar has no payload: ${key}`)
   }
   for (const entry of entries) {
     if (!entry.isFile()) continue

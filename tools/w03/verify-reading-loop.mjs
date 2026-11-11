@@ -29,12 +29,29 @@ function check(name, ok, detail = '') {
 }
 
 const pdfBytes = await readFile(join(here, 'fixtures', 'synthetic-2page.pdf'))
-const parse = JSON.parse(await readFile(join(here, 'fixtures', 'reading-parse.json'), 'utf8'))
+const parseBytes = await readFile(join(here, 'fixtures', 'reading-parse.json'))
+const parse = JSON.parse(parseBytes.toString('utf8'))
 const anchorById = new Map(parse.anchors.map((anchor) => [anchor.id, anchor]))
 
-// 1. The source is content-addressed before anything is read out of it.
+// 1. The source is content-addressed before anything is read out of it, and the parse is bound
+//    to that exact source. Without this binding the fixture proved nothing about the PDF: an
+//    earlier version only hashed the PDF and checked quotes against the parse, so replacing the
+//    PDF with unrelated bytes still passed (independent QA reproduced that).
 const sourceSha = sha256(pdfBytes)
 check('source PDF has a stable sha256', /^[0-9a-f]{64}$/.test(sourceSha), sourceSha.slice(0, 16))
+check('the recorded parse declares this exact source', parse.sourceSha256 === sourceSha,
+  parse.sourceSha256 ? String(parse.sourceSha256).slice(0, 16) : 'missing sourceSha256')
+
+// Each anchor carries a marker that must also be present in the source bytes. This is what makes
+// swapping the source observable: the fixture's streams are uncompressed, so the marker is
+// literally in the PDF. On a parser output that is not true of real PDFs, and the check is
+// scoped to this fixture on purpose.
+const sourceText = pdfBytes.toString('latin1')
+for (const anchor of parse.anchors) {
+  const marker = (String(anchor.text).match(/ANCHOR-[A-Z0-9-]+/) || [])[0]
+  check(`anchor ${anchor.id} is bound to the source bytes`, Boolean(marker) && sourceText.includes(marker), marker ?? 'no ANCHOR-* marker')
+}
+
 
 // 2. A note is only allowed to claim what the parser actually contains: every quote must be an
 //    exact substring of the anchor it cites. This is the minimal, deterministic version of
@@ -70,6 +87,7 @@ try {
     literature: JSON.stringify({
       source: parse.source,
       sourceSha256: sourceSha,
+      parseSha256: sha256(parseBytes),
       parser: 'docling (external; MCP conversion measured 115–317 s, anchors only)',
       anchors: claims.map((item) => ({ id: item.anchor, page: anchorById.get(item.anchor)?.page ?? null, quote: item.quote })),
     }),

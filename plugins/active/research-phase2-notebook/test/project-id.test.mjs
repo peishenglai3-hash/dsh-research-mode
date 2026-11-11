@@ -128,3 +128,27 @@ test('a non-canonical projectId is refused rather than resolving to another casi
   }
 })
 
+test('a notebookPath that escapes the project is refused by containment, not by ENOENT', async () => {
+  // Regression guard for the containment check itself: with a file that *does* exist outside the
+  // project, removal of the prefix check would let the read succeed silently. Without this test,
+  // deleting that check left every other notebook test green (independent QA found exactly that).
+  const workspace = await mkdtemp(join(tmpdir(), 'research-nb-contain-'))
+  const outside = await mkdtemp(join(tmpdir(), 'research-nb-contain-out-'))
+  try {
+    await mkdir(join(workspace, '.research', 'projects', 'p1'), { recursive: true })
+    await writeFile(join(outside, 'outside.ipynb'), JSON.stringify(notebook('OUTSIDE')), 'utf8')
+    await assert.rejects(
+      () => inspectNotebook(workspace, 'p1', join(outside, 'outside.ipynb')),
+      /outside the project/,
+    )
+    await assert.rejects(
+      () => inspectNotebook(workspace, 'p1', '../../../../outside.ipynb'),
+      /outside the project|ENOENT/,
+    )
+  } finally {
+    await rm(workspace, { recursive: true, force: true })
+    await rm(outside, { recursive: true, force: true })
+  }
+})
+
+

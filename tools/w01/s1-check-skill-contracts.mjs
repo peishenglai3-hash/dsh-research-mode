@@ -90,23 +90,34 @@ if (!existsSync(skillMirror)) {
       if (a !== b) differing.push(rel)
     }
   }
-  // Cross-check the hardcoded registry against what the bundles actually declare.
-  const declared = new Set()
-  for (const bundle of readdirSync(join(repoRoot, 'plugins', 'active'))) {
-    const dir = join(repoRoot, 'plugins', 'active', bundle)
-    if (!statSync(dir).isDirectory()) continue
-    for (const file of readdirSync(dir)) {
-      if (!file.endsWith('.js')) continue
-      const text = readFileSync(join(dir, file), 'utf8')
-      for (const m of text.matchAll(/research_[a-z0-9_]+/g)) declared.add(m[0])
-    }
-  }
-  const missingFromSource = [...REGISTERED].filter((n) => !declared.has(n))
-  check('registry-matches-sources', missingFromSource.length === 0,
-    missingFromSource.length === 0 ? `all ${REGISTERED.size} names appear in plugins/active` : `absent from source: ${missingFromSource.join(',')}`)
-
   check('mirror-identical', sameList && differing.length === 0,
     sameList ? `${left.length} files, differing=${differing.length}` : 'file lists differ')
 }
+
+// Cross-check the hardcoded registry against what the bundles actually declare. This used to
+// live inside the `else` above, so in a checkout without .agents/skills — which is the published
+// layout — it never ran at all: a registered tool could be deleted or renamed and the check still
+// passed (independent QA reproduced that).
+//
+// Limitation, stated rather than hidden: this asserts that each registered name still appears
+// somewhere in the bundle sources. It catches removal. It does not catch a rename that leaves the
+// old name behind in a message or comment (renaming research_replay_plan's `name:` line while the
+// error string still says "research_replay_plan …" passes). The bundle registration forms differ
+// (object `name:` in the phase-2 tools, bare string literals in host/connectors), so a precise
+// registration-level check needs the host to expose the mounted tool list — that is the real fix,
+// not a regex.
+const declared = new Set()
+for (const bundle of readdirSync(join(repoRoot, 'plugins', 'active'))) {
+  const dir = join(repoRoot, 'plugins', 'active', bundle)
+  if (!statSync(dir).isDirectory()) continue
+  for (const file of readdirSync(dir)) {
+    if (!file.endsWith('.js')) continue
+    const text = readFileSync(join(dir, file), 'utf8')
+    for (const m of text.matchAll(/research_[a-z0-9_]+/g)) declared.add(m[0])
+  }
+}
+const missingFromSource = [...REGISTERED].filter((n) => !declared.has(n))
+check('registry-matches-sources', missingFromSource.length === 0,
+  missingFromSource.length === 0 ? `all ${REGISTERED.size} names appear in plugins/active` : `absent from source: ${missingFromSource.join(',')}`)
 console.log(`\nSKILL CONTRACT CHECK: ${failures === 0 ? 'PASS' : 'FAIL'} (${failures} failure(s))`)
 if (failures > 0) process.exitCode = 1

@@ -9,7 +9,7 @@
 // existed at the door but not at the window.
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { appendFile, mkdtemp, readFile, rm, unlink, writeFile } from 'node:fs/promises'
+import { appendFile, mkdtemp, readFile, rename, rm, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
@@ -104,6 +104,39 @@ test('the derived review face reports whether the signature was actually checked
 
     const tampered = await getProvenance(workspace, projectId, id)
     assert.equal(tampered.faces.review.signatureValid, false)
+  } finally {
+    await rm(workspace, { recursive: true, force: true })
+  }
+})
+
+test('a payload renamed to uppercase cannot slip past the export check', async () => {
+  // The first export guard matched /^artifacts\\/[0-9a-f]{64}$/ — lowercase only. Renaming a
+  // tampered payload to uppercase hex skipped the check entirely, so the archive exported and
+  // re-imported cleanly while listArtifacts kept showing the original sidecar. Independent QA
+  // reproduced this. The name is now matched case-insensitively and compared to the digest.
+  const { workspace, projectId, id } = await setup()
+  try {
+    const dir = join(workspace, '.research', 'projects', projectId, 'artifacts')
+    await appendFile(join(dir, id), 'TAMPERED EXTRA BYTES\n')
+    await rename(join(dir, id), join(dir, id.toUpperCase()))
+    await assert.rejects(
+      () => exportScience(workspace, projectId, { name: 'renamed' }),
+      /no longer match their id/,
+    )
+  } finally {
+    await rm(workspace, { recursive: true, force: true })
+  }
+})
+
+test('export refuses an artifact set with a payload but no sidecar', async () => {
+  const { workspace, projectId, id } = await setup()
+  try {
+    const dir = join(workspace, '.research', 'projects', projectId, 'artifacts')
+    await unlink(join(dir, `${id}.json`))
+    await assert.rejects(
+      () => exportScience(workspace, projectId, { name: 'orphan' }),
+      /payload has no sidecar/,
+    )
   } finally {
     await rm(workspace, { recursive: true, force: true })
   }

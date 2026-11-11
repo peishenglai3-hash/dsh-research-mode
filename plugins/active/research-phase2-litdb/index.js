@@ -1,5 +1,5 @@
-import { mkdir, writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { mkdir, realpath, writeFile } from 'node:fs/promises'
+import { basename, join, resolve, sep } from 'node:path'
 import { resolveLitdbPath, searchLitdb, litdbSnapshot } from './lib/query.js'
 
 let workingDirectoryGetter
@@ -20,7 +20,19 @@ async function writeProjectJson(exec, projectId, filename, value) {
   if (!/^[\p{Letter}\p{Number}._-]+$/u.test(id) || id === '.' || id === '..') throw new Error('invalid projectId for litdb cache')
   const root = await workspaceRoot(exec)
   if (!root) return undefined
-  const dir = join(root, '.research', 'projects', projectId, '.litdb')
+  // This is a write path, so containment matters more than on the read paths: a junction at
+  // .research/projects/<id> would put the cache outside the workspace. Anchor at the research
+  // root and require the directory's real name to be the id (independent QA reproduced both).
+  const projectsRoot = await realpath(resolve(root, '.research', 'projects'))
+    .catch(() => resolve(root, '.research', 'projects'))
+  const candidate = join(projectsRoot, id)
+  const project = await realpath(candidate).catch(() => candidate)
+  if (project !== projectsRoot && !project.startsWith(projectsRoot + sep)) {
+    throw new Error('project path is outside the workspace research root')
+  }
+  const actualName = basename(project)
+  if (actualName !== id) throw new Error(`non-canonical projectId: ${id} (directory is ${actualName})`)
+  const dir = join(project, '.litdb')
   await mkdir(dir, { recursive: true })
   const path = join(dir, filename)
   await writeFile(path, `${JSON.stringify({ ...value, cachedAt: new Date().toISOString() })}\n`, 'utf8')
