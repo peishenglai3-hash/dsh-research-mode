@@ -1,6 +1,6 @@
 {
   "name": "@peisheng_lai/dsh-research-hub",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Unified right-sidebar research hub: artifacts, provenance, reviewer and litdb in one entry.",
   "exports": {

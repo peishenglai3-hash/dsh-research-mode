@@ -1,6 +1,6 @@
 {
   "name": "@peisheng_lai/dsh-research-phase2-litdb",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Phase 2 initial slice: read-only litdb search tool for DeepSeek Harness Research Mode.",
   "exports": {

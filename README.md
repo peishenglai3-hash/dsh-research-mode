@@ -118,9 +118,11 @@ than none.
 
 ## Status
 
-Early — `v0.1.0`. The evidence layer and the local data layout are exercised by a real acceptance
-suite; the reading/parsing path depends on an external PDF parser (Docling) and is documented as
-such, including its known timeout issue. Interfaces may change before 1.0.
+Early — `v0.1.1` ([CHANGELOG](./CHANGELOG.md)). The evidence layer and the local data layout are
+exercised by a real acceptance suite and by CI; the reading/parsing path depends on an external PDF
+parser (Docling) and is documented as such, including its measured cost — conversions of the same
+two-page fixture took 115 s and 317 s, and the MCP surface exposes anchors but not page numbers.
+Interfaces may change before 1.0.
 
 **This repository is the source of truth.** Development, issues and releases happen here. See
 [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the workflow and for the two things the test suite does

@@ -1,6 +1,6 @@
 {
   "name": "@peisheng_lai/dsh-research-host",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "description": "Phase 1 Host-only research store and tools for DeepSeek Harness.",
   "exports": {
