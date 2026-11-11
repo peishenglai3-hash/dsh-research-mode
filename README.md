@@ -82,8 +82,9 @@ node tools/release/npm-preflight.mjs           # publication metadata (offline)
 
 All of these are zero-dependency Node scripts, and the same four run in CI on every push. They
 exist because "it works" should be a command, not a claim. `tools/w01/verify-acceptance.mjs` adds
-13 acceptance checks; one of them inspects the local user profile, so it reports PARTIAL on a clean
-machine by design. Two things the suite still does not cover: bundle mounting and the GUI — see
+13 acceptance checks, but one of them inspects a local harness profile directory and therefore
+FAILs (not skips) on a machine that has no such profile — that script is a local check, not a CI
+gate. Two things the suite still does not cover: bundle mounting and the GUI — see
 [`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ## What this software does **not** do
