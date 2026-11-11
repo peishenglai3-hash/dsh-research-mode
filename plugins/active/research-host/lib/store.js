@@ -552,7 +552,20 @@ async function collectProjectFiles(workspace, projectId, io = nodeIO) {
   const add = async (absolute, archiveName) => {
     if (isCredential(archiveName)) return
     const data = await io.readBytes(absolute)
-    files.push({ name: archiveName, data, sha256: sha256(data) })
+    const digest = sha256(data)
+    // A payload file is named by the sha256 of its bytes. If those bytes changed after recording,
+    // export would otherwise rebuild the manifest around the tampered bytes and produce an archive
+    // that verifies perfectly on import — laundering the change instead of reporting it. Reading
+    // provenance now checks the payload too; export must not be the softer path.
+    const payload = archiveName.match(/^artifacts\/([0-9a-f]{64})$/)
+    if (payload && payload[1] !== digest) {
+      throw new ScienceError(
+        `artifact bytes no longer match their id: ${payload[1]} (payload hashes to ${digest}); `
+        + 'the payload was modified after it was recorded, so exporting it would produce a '
+        + 'self-consistent archive of altered content',
+      )
+    }
+    files.push({ name: archiveName, data, sha256: digest })
   }
   await add(join(dir, 'project.json'), 'project.json')
   const artifactsDir = join(dir, 'artifacts')

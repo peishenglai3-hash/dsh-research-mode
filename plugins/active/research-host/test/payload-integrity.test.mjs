@@ -13,7 +13,7 @@ import { appendFile, mkdtemp, rm, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
-import { createProject, getProvenance, recordArtifact } from '../lib/store.js'
+import { createProject, exportScience, getProvenance, recordArtifact } from '../lib/store.js'
 
 async function setup() {
   const workspace = await mkdtemp(join(tmpdir(), 'research-integrity-'))
@@ -61,6 +61,23 @@ test('a deleted payload is reported as not verified instead of throwing', async 
     const provenance = await getProvenance(workspace, projectId, id)
     assert.equal(provenance.payloadVerified, false)
     assert.equal(provenance.payloadBytes, null)
+  } finally {
+    await rm(workspace, { recursive: true, force: true })
+  }
+})
+
+test('export refuses a payload whose bytes no longer match its id', async () => {
+  const { workspace, projectId, payloadPath } = await setup()
+  try {
+    const intact = await exportScience(workspace, projectId, { name: 'intact' })
+    assert.ok(intact.bytes > 0, 'an untouched project still exports')
+    await appendFile(payloadPath, 'TAMPERED EXTRA BYTES\n')
+    // Without this guard the manifest is rebuilt around the tampered bytes, so the archive
+    // verifies perfectly on import — the tamper would be laundered, not reported.
+    await assert.rejects(
+      () => exportScience(workspace, projectId, { name: 'tampered' }),
+      /no longer match their id/,
+    )
   } finally {
     await rm(workspace, { recursive: true, force: true })
   }
