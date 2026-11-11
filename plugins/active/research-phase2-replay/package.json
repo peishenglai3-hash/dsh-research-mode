@@ -1,6 +1,6 @@
 {
   "name": "@peisheng_lai/dsh-research-phase2-replay",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Phase 2 Replay plan: read-only artifact/environment/review inventory.",
   "exports": {

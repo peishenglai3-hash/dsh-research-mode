@@ -252,6 +252,20 @@ export async function getProvenance(workspace, projectId, artifactId, io = nodeI
     const review = await readJson(join(dir, 'reviews', `${id}.json`), null, io)
     if (review) {
       reviewSource = 'derived-from-reviews'
+      // The face used to copy decision/signature out of the file and call it available, without
+      // ever checking the signature — so provenance could report "available / accept" for a
+      // record verifyReview would reject. Check it here and say what the check means: the
+      // signature is an unkeyed content hash, i.e. tamper-evident, not identity-proof.
+      let signatureValid = null
+      let signatureReason = null
+      try {
+        const verdict = await verifyReview(workspace, projectId, id, io)
+        signatureValid = verdict.valid
+        if (!verdict.valid) signatureReason = 'one or more recorded rounds do not match their signature'
+      } catch (error) {
+        signatureValid = false
+        signatureReason = String(error?.message ?? error)
+      }
       reviewFace = {
         status: 'available',
         source: 'reviews',
@@ -261,6 +275,9 @@ export async function getProvenance(workspace, projectId, artifactId, io = nodeI
         authority: review.authority ?? null,
         template: review.template ?? null,
         signature: review.signature ?? null,
+        signatureValid,
+        signatureMeaning: 'unkeyed content hash (tamper-evident, not identity authentication)',
+        ...(signatureReason ? { signatureReason } : {}),
         createdAt: review.createdAt ?? null,
         note: 'derived at read time from .research/projects/<id>/reviews; the immutable artifact sidecar is not rewritten',
       }
@@ -275,12 +292,31 @@ export async function getProvenance(workspace, projectId, artifactId, io = nodeI
       ? reviewFace
       : (artifact.provenance?.[key] ?? unavailable('face was not recorded'))
   }
+  // Content addressing is a claim about the bytes, so check it on read instead of echoing the
+  // sidecar. Before this, appending a byte to the payload left `getProvenance` reporting the
+  // recorded checksum and "reproducibility: available", and export did not catch it either
+  // (its manifest is rebuilt from whatever is on disk). Import always verified; reading did not.
+  let payloadVerified = false
+  let payloadBytes = null
+  try {
+    const bytes = await io.readBytes(join(dir, 'artifacts', id))
+    payloadBytes = bytes.byteLength
+    payloadVerified = sha256(bytes) === id
+  } catch {
+    // A deleted payload is a verifiable "no", not an exception that hides the recorded faces.
+    payloadVerified = false
+    payloadBytes = null
+  }
   return {
     artifactId: artifact.id,
     title: artifact.title,
     checksum: artifact.checksum,
     faces,
     reviewSource,
+    // Recorded identity vs. what is on disk right now. These are different questions and
+    // both are answered separately on purpose.
+    payloadVerified,
+    payloadBytes,
     // Keep the recorded snapshot visible so recorded state is distinguishable from derived state.
     reviewSnapshot: snapshot,
   }
@@ -533,7 +569,20 @@ async function collectProjectFiles(workspace, projectId, io = nodeIO) {
   const add = async (absolute, archiveName) => {
     if (isCredential(archiveName)) return
     const data = await io.readBytes(absolute)
-    files.push({ name: archiveName, data, sha256: sha256(data) })
+    const digest = sha256(data)
+    // A payload file is named by the sha256 of its bytes. If those bytes changed after recording,
+    // export would otherwise rebuild the manifest around the tampered bytes and produce an archive
+    // that verifies perfectly on import — laundering the change instead of reporting it. Reading
+    // provenance now checks the payload too; export must not be the softer path.
+    const payload = archiveName.match(/^artifacts\/([0-9a-f]{64})$/)
+    if (payload && payload[1] !== digest) {
+      throw new ScienceError(
+        `artifact bytes no longer match their id: ${payload[1]} (payload hashes to ${digest}); `
+        + 'the payload was modified after it was recorded, so exporting it would produce a '
+        + 'self-consistent archive of altered content',
+      )
+    }
+    files.push({ name: archiveName, data, sha256: digest })
   }
   await add(join(dir, 'project.json'), 'project.json')
   const artifactsDir = join(dir, 'artifacts')

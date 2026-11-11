@@ -1,5 +1,5 @@
 import { readFile, realpath } from 'node:fs/promises'
-import { isAbsolute, join, resolve, sep } from 'node:path'
+import { basename, isAbsolute, join, resolve, sep } from 'node:path'
 
 function importsOf(source) {
   const names = new Set()
@@ -11,10 +11,28 @@ function importsOf(source) {
 }
 
 export async function inspectNotebook(workspace, projectId, notebookPath) {
-  if (!/^[\p{Letter}\p{Number}._-]+$/u.test(String(projectId))) throw new Error('invalid projectId')
-  const project = resolve(workspace, '.research', 'projects', projectId)
+  // A projectId names one directory under <workspace>/.research/projects. Dot is a legal
+  // character in a directory name, so the character-class test alone admits "." and "..",
+  // and ".." roots the project at <workspace>/.research — from where a relative
+  // notebookPath can reach a sibling project. Refuse the two navigational names explicitly.
+  const id = String(projectId)
+  if (!/^[\p{Letter}\p{Number}._-]+$/u.test(id) || id === '.' || id === '..') throw new Error('invalid projectId')
+  // Containment has to be anchored at <workspace>/.research/projects, not at the project
+  // directory: realpath(project) happily follows a junction that points anywhere, so a trust
+  // check against the project root trusts a root the attacker chose. Independent QA reproduced
+  // an out-of-workspace read through exactly such a junction.
+  const projectsRoot = await realpath(resolve(workspace, '.research', 'projects'))
+    .catch(() => resolve(workspace, '.research', 'projects'))
+  const project = join(projectsRoot, id)
   const root = await realpath(project).catch(() => project)
-  const requested = isAbsolute(notebookPath) ? notebookPath : join(project, notebookPath)
+  if (root !== projectsRoot && !root.startsWith(projectsRoot + sep)) {
+    throw new Error('project path is outside the workspace research root')
+  }
+  // The id must be the directory's real name. On a case-insensitive filesystem "P1" resolves to
+  // "p1", which would give one project two identities; every recorded locator keys on the id.
+  const actualName = basename(root)
+  if (actualName !== id) throw new Error(`non-canonical projectId: ${id} (directory is ${actualName})`)
+  const requested = isAbsolute(notebookPath) ? notebookPath : join(root, notebookPath)
   const absolute = await realpath(requested)
   if (absolute !== root && !absolute.startsWith(root + sep)) {
     throw new Error('notebook path is outside the project')

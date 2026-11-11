@@ -92,6 +92,13 @@ for (const dirName of readdirSync(activeDir).sort()) {
 }
 
 const failed = results.filter((r) => !r.ok)
+// A preflight that examined nothing must not report PASS. Every check is registered by a bundle
+// that has a package.json with dsh.bundle, so a layout change that stops matching would otherwise
+// print "PASS (0/0)" and exit 0 — a vacuum passing as a gate.
+if (results.length === 0) {
+  console.error('NPM PREFLIGHT: FAIL — no publishable bundle was examined (0 checks). Is plugins/active/ still the layout?')
+  process.exit(3)
+}
 console.log(`\nNPM PREFLIGHT: ${failed.length === 0 ? 'PASS' : 'FAIL'} (${results.length - failed.length}/${results.length})`)
 if (failed.length) {
   console.log('failures:')

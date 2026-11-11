@@ -52,30 +52,40 @@ Ten bundles, 24 tools, no third-party runtime dependencies (Node builtins only).
 
 ## Quick start
 
-```bash
-# 1. clone into your harness plugins area
-git clone https://github.com/peishenglai3-hash/dsh-research-mode.git
+The bundles are published to npm, so a profile can install them as ordinary packages. Replace
+`<your-profile>` with the profile you want the research workspace to appear in; `exec` is
+deliberately not in this list (see "What this software does not do").
 
-# 2. add the bundles to a profile (see docs/INSTALL.md)
-dsh plugin --profile <your-profile> add link:./plugins/active/research-host
-#    ... repeat for the other bundles, then
-dsh --profile <your-profile> --dump-config
+```bash
+for pkg in host workspace hub preset preset-cn-social connectors \
+           phase2-litdb phase2-notebook phase2-replay; do
+  dsh plugin --profile <your-profile> add "@peisheng_lai/dsh-research-${pkg}"
+done
+dsh --profile <your-profile> --dump-config   # expect 9 research rows, 0 skipped
 ```
 
-Read `docs/INSTALL.md` for the full profile recipe, and `docs/EVIDENCE-MODEL.md` for what the
-seven provenance faces mean.
+Working from a clone instead of npm is supported too, but a relative `link:` resolves against the
+**profile** directory, not against the clone — use an absolute path
+(`link:/abs/path/to/repo/plugins/active/research-host`). `docs/INSTALL.md` gives both recipes.
+
+Read `docs/EVIDENCE-MODEL.md` for what the seven provenance faces mean, and note that
+`available` records that something was written down; it does not mean "verified".
 
 ## Verification (run it yourself)
 
 ```bash
-node --test plugins/active/*/test/*.test.mjs   # 66 tests
-node tools/w01/verify-acceptance.mjs           # 13 acceptance checks
+node tools/w03/run-tests.mjs                   # the test suite (enumerates the files itself)
 node tools/w01/probe-containment.mjs           # 12 path-containment vectors
 node tools/w01/s1-check-skill-contracts.mjs    # skill <-> tool contract + mirror drift
+node tools/release/npm-preflight.mjs           # publication metadata (offline)
 ```
 
-All of these are zero-dependency Node scripts. They exist because "it works" should be a
-command, not a claim.
+All of these are zero-dependency Node scripts, and the same four run in CI on every push. They
+exist because "it works" should be a command, not a claim. `tools/w01/verify-acceptance.mjs` adds
+13 acceptance checks, but one of them inspects a local harness profile directory and therefore
+FAILs (not skips) on a machine that has no such profile — that script is a local check, not a CI
+gate. Two things the suite still does not cover: bundle mounting and the GUI — see
+[`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ## What this software does **not** do
 
@@ -91,6 +101,10 @@ than none.
   unkeyed content hash. It proves the record was not edited; it does not prove identity.
 - **`review verify → valid` does not prove history is complete.** A single file cannot prove older
   rounds were not deleted or reordered. Rounds without signatures are reported as legacy, not valid.
+- **`payloadVerified: true` does not mean "unaltered".** It means the bytes hash to the artifact id.
+  Nothing signs the artifact *set*, so someone with write access can write new bytes under a new id
+  with a matching sidecar and delete the original — internally consistent, and undetectable from
+  inside the store. Editing a payload in place *is* caught. See `docs/EVIDENCE-MODEL.md`.
 - **There is no per-tool authorization gate.** A tool call is not approved by a human at runtime.
 - **`confirm=true` is a tool parameter, not human consent.** It is a speed bump, not a control.
 - **`.science` import read-only is declared, not enforced.** On Windows the copied tree is still writable.
@@ -108,17 +122,20 @@ than none.
 
 ## Status
 
-Early — `v0.1.0`. The evidence layer and the local data layout are exercised by a real acceptance
-suite; the reading/parsing path depends on an external PDF parser (Docling) and is documented as
-such, including its known timeout issue. Interfaces may change before 1.0.
+Early — `v0.1.1` ([CHANGELOG](./CHANGELOG.md)). The evidence layer and the local data layout are
+exercised by a real acceptance suite and by CI; the reading/parsing path depends on an external PDF
+parser (Docling) and is documented as such, including its measured cost — conversions of the same
+two-page fixture took 115 s and 317 s, and the MCP surface exposes anchors but not page numbers.
+Interfaces may change before 1.0.
 
 **This repository is the source of truth.** Development, issues and releases happen here. See
 [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the workflow and for the two things the test suite does
 *not* cover (bundle mounting and the GUI).
 
-Packaging: the bundles are currently installed by `link:` from a clone. npm publication is in
-preparation so they can be installed as ordinary packages; until that lands, follow
-[`docs/INSTALL.md`](./docs/INSTALL.md).
+Packaging: the nine bundles are published to npm as `@peisheng_lai/dsh-research-*` and install as
+ordinary packages (`dsh plugin --profile <name> add <pkg>`). A clone with absolute `link:` paths
+still works — see [`docs/INSTALL.md`](./docs/INSTALL.md). `research-phase2-exec` is intentionally
+**not** published: it executes code and has no per-tool authorization gate.
 
 ## License
 

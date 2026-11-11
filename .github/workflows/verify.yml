@@ -1,0 +1,51 @@
+# The repository claims four verification commands. Before this workflow existed, none of them
+# ran on push: "it works" was a thing a person remembered to check.
+#
+# Scope note (deliberate, not an oversight): this job runs on windows-latest only. The product
+# is Windows-first today (paths, ACLs, and the host CLI are all exercised on Windows), and a job
+# that is known-red on another platform would be noise, not a gate. Adding ubuntu-latest is a
+# follow-up that needs its own evidence — see docs/w03/W03-ITERATION-PLAN.md.
+#
+# The fifth verification command, tools/release/profile-composition.mjs, is intentionally NOT
+# here: it spawns the host CLI (`dsh --dump-config`) and cannot run on a runner without the
+# harness installed. It stays a local, post-install check; W03-BASELINE.md §2 records that gap.
+name: verify
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node 24 (node:sqlite and node:zstd are load-bearing)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Tests (explicit file list; the runner script enumerates them)
+        run: node tools/w03/run-tests.mjs
+
+      - name: Path containment (12 vectors)
+        run: node tools/w01/probe-containment.mjs
+
+      - name: Skill ↔ tool contract and mirror drift
+        run: node tools/w01/s1-check-skill-contracts.mjs
+
+      - name: npm publication metadata (offline; no --pack, no login)
+        run: node tools/release/npm-preflight.mjs
+
+      # Proves the evidence layer end to end using a recorded parse fixture. It deliberately does
+      # NOT require the PDF parser: parser latency and locator granularity are measured facts
+      # (docs/w03/findings/lead-probes.md), not something a green check should paper over.
+      - name: Reading evidence loop (locator fidelity + verified read-back)
+        run: node tools/w03/verify-reading-loop.mjs
