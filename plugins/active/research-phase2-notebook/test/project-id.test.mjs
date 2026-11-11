@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
@@ -84,3 +84,47 @@ test('a normal projectId still works (no over-blocking)', async () => {
     await rm(workspace, { recursive: true, force: true })
   }
 })
+
+test('a junction planted at a project directory cannot escape the workspace', async (t) => {
+  // Independent QA reproduced this: realpath(project) follows the junction, and the old check
+  // only compared the notebook against that root — so containment was anchored at a directory
+  // the attacker chose. The guard must anchor at <workspace>/.research/projects.
+  const workspace = await mkdtemp(join(tmpdir(), 'research-nb-junction-'))
+  const outside = await mkdtemp(join(tmpdir(), 'research-nb-outside-'))
+  try {
+    await mkdir(join(workspace, '.research', 'projects'), { recursive: true })
+    await writeFile(join(outside, 'SECRET.ipynb'), JSON.stringify(notebook('OUTSIDE_SECRET')), 'utf8')
+    try {
+      await symlink(outside, join(workspace, '.research', 'projects', 'p2'), 'junction')
+    } catch (error) {
+      t.skip(`junction not creatable here: ${error?.code ?? error?.message}`)
+      return
+    }
+    let leaked = false
+    try {
+      const result = await inspectNotebook(workspace, 'p2', 'SECRET.ipynb')
+      leaked = JSON.stringify(result).includes('OUTSIDE_SECRET')
+    } catch (error) {
+      assert.match(String(error.message), /outside the workspace research root/)
+    }
+    assert.equal(leaked, false, 'a junction must not move the containment anchor outside the workspace')
+  } finally {
+    await rm(workspace, { recursive: true, force: true })
+    await rm(outside, { recursive: true, force: true })
+  }
+})
+
+test('a non-canonical projectId is refused rather than resolving to another casing', async () => {
+  const { workspace } = await fixture()
+  try {
+    // On a case-sensitive filesystem this is ENOENT; on Windows it would resolve to "victim",
+    // giving one project two identities. Either way it must not succeed.
+    await assert.rejects(
+      () => inspectNotebook(workspace, 'VICTIM', 'analysis.ipynb'),
+      /non-canonical projectId|ENOENT/,
+    )
+  } finally {
+    await rm(workspace, { recursive: true, force: true })
+  }
+})
+

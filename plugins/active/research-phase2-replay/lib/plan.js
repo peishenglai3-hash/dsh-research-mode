@@ -1,5 +1,5 @@
-import { readFile, readdir } from 'node:fs/promises'
-import { join } from 'node:path'
+import { readFile, readdir, realpath } from 'node:fs/promises'
+import { basename, join, resolve, sep } from 'node:path'
 
 async function readJson(path, fallback = null) {
   try {
@@ -32,7 +32,18 @@ export async function replayPlan(workspace, projectId) {
   // "unknown project" for a path that was never a project.
   const id = String(projectId)
   if (!/^[\p{Letter}\p{Number}._-]+$/u.test(id) || id === '.' || id === '..') throw new Error('invalid projectId')
-  const project = join(workspace, '.research', 'projects', projectId)
+  // Anchor containment at the workspace research root. Without this, a junction at
+  // .research/projects/<id> makes the plan describe a directory outside the workspace, and
+  // every path in the plan is then attacker-selected (independent QA reproduced this).
+  const projectsRoot = await realpath(resolve(workspace, '.research', 'projects'))
+    .catch(() => resolve(workspace, '.research', 'projects'))
+  const candidate = join(projectsRoot, id)
+  const project = await realpath(candidate).catch(() => candidate)
+  if (project !== projectsRoot && !project.startsWith(projectsRoot + sep)) {
+    throw new Error('project path is outside the workspace research root')
+  }
+  const actualName = basename(project)
+  if (actualName !== id) throw new Error(`non-canonical projectId: ${id} (directory is ${actualName})`)
   const meta = await readJson(join(project, 'project.json'))
   if (!meta) throw new Error(`unknown project: ${projectId}`)
   const artifacts = await listJson(join(project, 'artifacts'))
