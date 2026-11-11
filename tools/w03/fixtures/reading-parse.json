@@ -1,6 +1,7 @@
 {
   "source": "synthetic-2page.pdf",
-  "note": "Two-anchor parse of a synthetic two-page PDF. The text is invented for plumbing tests and carries no scientific claim. Anchor ids follow Docling's structured output (#/texts/N); page numbers come from prov[0].page_no and are unavailable through the MCP text tools (see docs/w03/findings/lead-probes.md P-07).",
+  "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+  "note": "Two-anchor parse of a synthetic two-page PDF. The text is invented for plumbing tests and carries no scientific claim. sourceSha256 binds this parse to that exact file; each anchor carries ANCHOR-* marker that also occurs in the PDF's uncompressed bytes, so swapping the source invalidates the fixture. Anchor ids follow Docling's structured output (#/texts/N); page numbers come from prov[0].page_no and are unavailable through the MCP text tools (see docs/w03/findings/lead-probes.md P-07).",
   "pages": 2,
   "anchors": [
     {
