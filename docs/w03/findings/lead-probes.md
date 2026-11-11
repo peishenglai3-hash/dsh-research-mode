@@ -93,7 +93,7 @@ node tools/release/profile-composition.mjs
 
 ---
 
-## P-06 · 页号是可得的——但要靠结构化输出，不是靠 MCP 文本
+## P-06 · 页号在结构化输出里可得；MCP 面只给锚点（P-07 实测）
 
 **做法：** 解析 P-03 生成的 `synthetic-2page.json`。
 
@@ -112,7 +112,32 @@ page keys: 1,2
 "toolCallTimeoutMs": { "default": 60000, "type": ["number","null"] }
 ```
 
-→ 在受控 profile 的 `porting-mcp-docling` 行加一行 `toolCallTimeoutMs: 300000` 即可；回退 = 删这一行 + `dsh plugin install`。
+→ 在受控 profile 的 `porting-mcp-docling` 行加 `toolCallTimeoutMs: 600000`（**不是** 300000，见 P-07）；回退 = 删这一行 + `dsh plugin install`。
+
+---
+
+## P-07 · 直接对 Docling MCP 说协议：转换成功，但耗时 115–317 s，且**没有页号**
+
+**做法：** 用 Node 直接 spawn `docling-mcp-server.exe --transport stdio`（env 带 `DOCLING_MCP_CONVERSION_MODE=local`），按 MCP JSON-RPC 调 `initialize` → `convert_document_into_docling_document` → `get_overview_of_document_anchors` → `get_text_of_document_item_at_anchor`。
+
+```text
+run 1: initialize 15.2 s · convert 115.2 s · isError=false · document_key=1230dfb9… · from_cache=false
+run 2: initialize 15.9 s · convert 316.6 s · isError=false · document_key=1230dfb9… · from_cache=false
+
+overview  6 ms   {"structure": "    [anchor:#/texts/0] text\n    [anchor:#/texts/1] text"}
+overview mentions page: false
+anchor #/texts/0  4 ms  {"text": "W02-S1 SYNTHETIC FIXTURE (NOT REAL RESEARCH DATA) Finding A: …
+                        ANCHOR-P1-UNIQUE-7F3A"}
+```
+
+**三条结论，都会改变施工方案：**
+
+1. **超时是唯一阻断，但不是 300 s 够。** 实测 115 s 与 317 s 两次，方差极大（每次新进程都重新加载模型）。`toolCallTimeoutMs` 必须给到 **600000**；给 300000 会在第二次那种情况下**照样失败**。
+2. **MCP 面不给页码。** `get_overview_of_document_anchors` 只回 `anchor:#/texts/N` + label；`get_text_of_document_item_at_anchor` 回精确原文。页号只在 **CLI 的结构化 JSON**（`prov[].page_no`）里。
+3. **因此"页级引用"和"产品内可读"目前是两条路，不能同时成立**：要么接受锚点级（产品内、慢），要么走 CLI 预处理（有页号、但要 shell + 会联网拉模型）。
+
+> 这正是"让实际科研活动决定工程构型"的一个具体后果：不该为了页号去新增工具，而该先决定"阅读笔记的证据粒度是页还是锚点"。
+
 
 ---
 
@@ -125,4 +150,5 @@ page keys: 1,2
 | P-03 | Docling 首次转换会联网拉模型，"零下载"不可外推 | P1 | C2-a 前置 |
 | P-04 | 195 个插件 junction 全部悬空 | P2 | 环境 |
 | P-05 | 组合矩阵命令不可在 CI 复现 | P2 | C0 |
-| P-06 | `prov[].page_no` 可得；C2-a 参数确认为 `toolCallTimeoutMs` | — | 事实 |
+| P-06 | `prov[].page_no` 在 CLI 结构化输出里可得 | — | 事实 |
+| P-07 | MCP 转换成功但需 115–317 s，且只给锚点不给页号 → C2-a 必须 600000 | P1 | C2-a |
