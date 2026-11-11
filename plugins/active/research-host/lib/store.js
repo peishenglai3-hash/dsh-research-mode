@@ -275,12 +275,31 @@ export async function getProvenance(workspace, projectId, artifactId, io = nodeI
       ? reviewFace
       : (artifact.provenance?.[key] ?? unavailable('face was not recorded'))
   }
+  // Content addressing is a claim about the bytes, so check it on read instead of echoing the
+  // sidecar. Before this, appending a byte to the payload left `getProvenance` reporting the
+  // recorded checksum and "reproducibility: available", and export did not catch it either
+  // (its manifest is rebuilt from whatever is on disk). Import always verified; reading did not.
+  let payloadVerified = false
+  let payloadBytes = null
+  try {
+    const bytes = await io.readBytes(join(dir, 'artifacts', id))
+    payloadBytes = bytes.byteLength
+    payloadVerified = sha256(bytes) === id
+  } catch {
+    // A deleted payload is a verifiable "no", not an exception that hides the recorded faces.
+    payloadVerified = false
+    payloadBytes = null
+  }
   return {
     artifactId: artifact.id,
     title: artifact.title,
     checksum: artifact.checksum,
     faces,
     reviewSource,
+    // Recorded identity vs. what is on disk right now. These are different questions and
+    // both are answered separately on purpose.
+    payloadVerified,
+    payloadBytes,
     // Keep the recorded snapshot visible so recorded state is distinguishable from derived state.
     reviewSnapshot: snapshot,
   }
