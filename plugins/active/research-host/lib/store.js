@@ -252,6 +252,20 @@ export async function getProvenance(workspace, projectId, artifactId, io = nodeI
     const review = await readJson(join(dir, 'reviews', `${id}.json`), null, io)
     if (review) {
       reviewSource = 'derived-from-reviews'
+      // The face used to copy decision/signature out of the file and call it available, without
+      // ever checking the signature — so provenance could report "available / accept" for a
+      // record verifyReview would reject. Check it here and say what the check means: the
+      // signature is an unkeyed content hash, i.e. tamper-evident, not identity-proof.
+      let signatureValid = null
+      let signatureReason = null
+      try {
+        const verdict = await verifyReview(workspace, projectId, id, io)
+        signatureValid = verdict.valid
+        if (!verdict.valid) signatureReason = 'one or more recorded rounds do not match their signature'
+      } catch (error) {
+        signatureValid = false
+        signatureReason = String(error?.message ?? error)
+      }
       reviewFace = {
         status: 'available',
         source: 'reviews',
@@ -261,6 +275,9 @@ export async function getProvenance(workspace, projectId, artifactId, io = nodeI
         authority: review.authority ?? null,
         template: review.template ?? null,
         signature: review.signature ?? null,
+        signatureValid,
+        signatureMeaning: 'unkeyed content hash (tamper-evident, not identity authentication)',
+        ...(signatureReason ? { signatureReason } : {}),
         createdAt: review.createdAt ?? null,
         note: 'derived at read time from .research/projects/<id>/reviews; the immutable artifact sidecar is not rewritten',
       }

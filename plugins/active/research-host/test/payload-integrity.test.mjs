@@ -9,11 +9,11 @@
 // existed at the door but not at the window.
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { appendFile, mkdtemp, rm, unlink } from 'node:fs/promises'
+import { appendFile, mkdtemp, readFile, rm, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 
-import { createProject, exportScience, getProvenance, recordArtifact } from '../lib/store.js'
+import { createProject, exportScience, getProvenance, recordArtifact, recordReview } from '../lib/store.js'
 
 async function setup() {
   const workspace = await mkdtemp(join(tmpdir(), 'research-integrity-'))
@@ -78,6 +78,32 @@ test('export refuses a payload whose bytes no longer match its id', async () => 
       () => exportScience(workspace, projectId, { name: 'tampered' }),
       /no longer match their id/,
     )
+  } finally {
+    await rm(workspace, { recursive: true, force: true })
+  }
+})
+
+test('the derived review face reports whether the signature was actually checked', async () => {
+  const { workspace, projectId, id } = await setup()
+  try {
+    await recordReview(workspace, projectId, id, { decision: 'accept', notes: 'ok', reviewer: 'qa' })
+    const intact = await getProvenance(workspace, projectId, id)
+    assert.equal(intact.faces.review.status, 'available')
+    assert.equal(intact.faces.review.signatureValid, true)
+    assert.match(intact.faces.review.signatureMeaning, /unkeyed content hash/)
+
+    // Edit the recorded round without re-signing it: provenance must not keep saying the
+    // signature is fine. Independent QA found that the face copied the signature without
+    // ever checking it, so it could report "available / accept" for a record verifyReview
+    // rejects.
+    const reviewPath = join(workspace, '.research', 'projects', projectId, 'reviews', `${id}.json`)
+    const record = JSON.parse(await readFile(reviewPath, 'utf8'))
+    if (Array.isArray(record.history) && record.history.length > 0) record.history[record.history.length - 1].decision = 'reject'
+    else record.decision = 'reject'
+    await writeFile(reviewPath, JSON.stringify(record), 'utf8')
+
+    const tampered = await getProvenance(workspace, projectId, id)
+    assert.equal(tampered.faces.review.signatureValid, false)
   } finally {
     await rm(workspace, { recursive: true, force: true })
   }
