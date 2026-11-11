@@ -15,3 +15,7 @@
 *.jpeg binary
 *.webp binary
 *.db binary
+
+# Test fixtures: a PDF is hashed as bytes by tools/w03/verify-reading-loop.mjs, so a
+# checkout that normalises it would change the recorded source hash.
+*.pdf binary
