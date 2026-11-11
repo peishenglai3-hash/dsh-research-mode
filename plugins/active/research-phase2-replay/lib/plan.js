@@ -27,7 +27,11 @@ async function listJson(dir) {
 }
 
 export async function replayPlan(workspace, projectId) {
-  if (!/^[\p{Letter}\p{Number}._-]+$/u.test(String(projectId))) throw new Error('invalid projectId')
+  // Same rule as inspectNotebook: a projectId is one directory name, and "." / ".." are
+  // navigation, not names. Refusing them here keeps the error honest instead of reporting
+  // "unknown project" for a path that was never a project.
+  const id = String(projectId)
+  if (!/^[\p{Letter}\p{Number}._-]+$/u.test(id) || id === '.' || id === '..') throw new Error('invalid projectId')
   const project = join(workspace, '.research', 'projects', projectId)
   const meta = await readJson(join(project, 'project.json'))
   if (!meta) throw new Error(`unknown project: ${projectId}`)

@@ -11,7 +11,12 @@ function importsOf(source) {
 }
 
 export async function inspectNotebook(workspace, projectId, notebookPath) {
-  if (!/^[\p{Letter}\p{Number}._-]+$/u.test(String(projectId))) throw new Error('invalid projectId')
+  // A projectId names one directory under <workspace>/.research/projects. Dot is a legal
+  // character in a directory name, so the character-class test alone admits "." and "..",
+  // and ".." roots the project at <workspace>/.research — from where a relative
+  // notebookPath can reach a sibling project. Refuse the two navigational names explicitly.
+  const id = String(projectId)
+  if (!/^[\p{Letter}\p{Number}._-]+$/u.test(id) || id === '.' || id === '..') throw new Error('invalid projectId')
   const project = resolve(workspace, '.research', 'projects', projectId)
   const root = await realpath(project).catch(() => project)
   const requested = isAbsolute(notebookPath) ? notebookPath : join(project, notebookPath)

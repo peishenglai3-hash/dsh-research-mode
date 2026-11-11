@@ -13,7 +13,11 @@ async function workspaceRoot(exec) {
 }
 
 async function writeProjectJson(exec, projectId, filename, value) {
-  if (!/^[\p{Letter}\p{Number}._-]+$/u.test(projectId)) throw new Error('invalid projectId for litdb cache')
+  // Writes into <workspace>/.research/projects/<id>/.litdb. "." and ".." are directory
+  // navigation, not project names: with ".." the cache would land in .research/.litdb,
+  // outside any project. Same guard as inspectNotebook and replayPlan.
+  const id = String(projectId)
+  if (!/^[\p{Letter}\p{Number}._-]+$/u.test(id) || id === '.' || id === '..') throw new Error('invalid projectId for litdb cache')
   const root = await workspaceRoot(exec)
   if (!root) return undefined
   const dir = join(root, '.research', 'projects', projectId, '.litdb')
