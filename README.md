@@ -52,30 +52,39 @@ Ten bundles, 24 tools, no third-party runtime dependencies (Node builtins only).
 
 ## Quick start
 
-```bash
-# 1. clone into your harness plugins area
-git clone https://github.com/peishenglai3-hash/dsh-research-mode.git
+The bundles are published to npm, so a profile can install them as ordinary packages. Replace
+`<your-profile>` with the profile you want the research workspace to appear in; `exec` is
+deliberately not in this list (see "What this software does not do").
 
-# 2. add the bundles to a profile (see docs/INSTALL.md)
-dsh plugin --profile <your-profile> add link:./plugins/active/research-host
-#    ... repeat for the other bundles, then
-dsh --profile <your-profile> --dump-config
+```bash
+for pkg in host workspace hub preset preset-cn-social connectors \
+           phase2-litdb phase2-notebook phase2-replay; do
+  dsh plugin --profile <your-profile> add "@peisheng_lai/dsh-research-${pkg}"
+done
+dsh --profile <your-profile> --dump-config   # expect 9 research rows, 0 skipped
 ```
 
-Read `docs/INSTALL.md` for the full profile recipe, and `docs/EVIDENCE-MODEL.md` for what the
-seven provenance faces mean.
+Working from a clone instead of npm is supported too, but a relative `link:` resolves against the
+**profile** directory, not against the clone — use an absolute path
+(`link:/abs/path/to/repo/plugins/active/research-host`). `docs/INSTALL.md` gives both recipes.
+
+Read `docs/EVIDENCE-MODEL.md` for what the seven provenance faces mean, and note that
+`available` records that something was written down; it does not mean "verified".
 
 ## Verification (run it yourself)
 
 ```bash
-node --test plugins/active/*/test/*.test.mjs   # 66 tests
-node tools/w01/verify-acceptance.mjs           # 13 acceptance checks
+node tools/w03/run-tests.mjs                   # the test suite (enumerates the files itself)
 node tools/w01/probe-containment.mjs           # 12 path-containment vectors
 node tools/w01/s1-check-skill-contracts.mjs    # skill <-> tool contract + mirror drift
+node tools/release/npm-preflight.mjs           # publication metadata (offline)
 ```
 
-All of these are zero-dependency Node scripts. They exist because "it works" should be a
-command, not a claim.
+All of these are zero-dependency Node scripts, and the same four run in CI on every push. They
+exist because "it works" should be a command, not a claim. `tools/w01/verify-acceptance.mjs` adds
+13 acceptance checks; one of them inspects the local user profile, so it reports PARTIAL on a clean
+machine by design. Two things the suite still does not cover: bundle mounting and the GUI — see
+[`CONTRIBUTING.md`](./CONTRIBUTING.md).
 
 ## What this software does **not** do
 
@@ -116,9 +125,10 @@ such, including its known timeout issue. Interfaces may change before 1.0.
 [`CONTRIBUTING.md`](./CONTRIBUTING.md) for the workflow and for the two things the test suite does
 *not* cover (bundle mounting and the GUI).
 
-Packaging: the bundles are currently installed by `link:` from a clone. npm publication is in
-preparation so they can be installed as ordinary packages; until that lands, follow
-[`docs/INSTALL.md`](./docs/INSTALL.md).
+Packaging: the nine bundles are published to npm as `@peisheng_lai/dsh-research-*` and install as
+ordinary packages (`dsh plugin --profile <name> add <pkg>`). A clone with absolute `link:` paths
+still works — see [`docs/INSTALL.md`](./docs/INSTALL.md). `research-phase2-exec` is intentionally
+**not** published: it executes code and has no per-tool authorization gate.
 
 ## License
 
