@@ -137,6 +137,10 @@ ordinary packages (`dsh plugin --profile <name> add <pkg>`). A clone with absolu
 still works — see [`docs/INSTALL.md`](./docs/INSTALL.md). `research-phase2-exec` is intentionally
 **not** published: it executes code and has no per-tool authorization gate.
 
+Current versions: host `0.2.1`; hub, litdb, notebook and replay `0.1.1`; workspace and preset
+`0.2.0`; connectors and the Chinese social-science preset `0.1.0`. The evidence fixes in `0.1.2`
+live in the first five — the other four did not change.
+
 ## License
 
 MIT — see [LICENSE](./LICENSE).

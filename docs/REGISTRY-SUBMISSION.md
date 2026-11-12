@@ -22,6 +22,7 @@ does not publish anything.
 | | |
 |---|---|
 | published | **9 / 9** on npm, verified by installing them back from the registry |
+| current versions (2026-11-12) | host `0.2.1` · hub / litdb / notebook / replay `0.1.1` · workspace / preset `0.2.0` · connectors / preset-cn-social `0.1.0` |
 | excluded on purpose | 1 (`research-phase2-exec`, private: true — it executes code) |
 | registry submission | issue https://github.com/dshworks/awesome-dsh-plugins/issues/221 |
 | discovery | repository topic `dsh-plugin` set, which is the registry's scan entry |
