@@ -39,6 +39,23 @@ reading-evidence verifier is now actually bound to its source.
   The reading-loop claim is downgraded to PARTIAL: it proves quote↔parse and parse↔source
   agreement, not that the parser is right.
 
+### Published
+
+Five packages were published to npm on 2026-11-12 after the fixes above, and each was verified
+against the registry (version, `dsh.bundle`, `repository.url`, MIT):
+
+```text
+@peisheng_lai/dsh-research-host             0.2.1
+@peisheng_lai/dsh-research-hub              0.1.1
+@peisheng_lai/dsh-research-phase2-litdb     0.1.1
+@peisheng_lai/dsh-research-phase2-notebook  0.1.1
+@peisheng_lai/dsh-research-phase2-replay    0.1.1
+```
+
+Direct publishing required an interactive WebAuthn challenge: the account has 2FA on writes, and
+npm restricts 2FA-bypass tokens for direct publishing, so a granular token could not publish even
+with `--otp` unset. This is a registry policy, not a packaging defect.
+
 ## [0.1.1] — 2026-11-11
 
 Read-path integrity, project-id validation, and self-verification. No new tools, no schema
