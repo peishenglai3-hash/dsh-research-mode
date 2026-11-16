@@ -217,3 +217,11 @@ test('evidence layers: another artifact\'s review does not make this one judged'
   assert.equal(layers.judged, false)
   assert.equal(layers.reviewDerived, false)
 })
+
+test('the hub never prints the bare phrase 已复核', async () => {
+  // v6 M-02: "已复核" is a relational claim (another person AND a valid signature). This panel
+  // cannot check either, so it must say "有复核记录". Guard the wording mechanically.
+  const { readFile } = await import('node:fs/promises')
+  const source = await readFile(new URL('../client.js', import.meta.url), 'utf8')
+  assert.equal(source.includes('已复核'), false)
+})

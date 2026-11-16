@@ -343,16 +343,20 @@ function normalizeAccounts(input = {}) {
   const rights = text(input.rights)
   const producedBy = text(input.producedBy)
   const contributors = text(input.contributors)
-  if (!rights && !producedBy && !contributors) return null
+  const guarantor = text(input.guarantor)
+  if (!rights && !producedBy && !contributors && !guarantor) return null
   const field = (value) => (value
     ? { status: 'available', value, mode: 'reported' }
     : { status: 'unavailable', reason: 'not reported' })
-  const present = [rights, producedBy, contributors].filter(Boolean).length
+  const present = [rights, producedBy, contributors, guarantor].filter(Boolean).length
   return {
-    status: present === 3 ? 'available' : 'partial',
+    status: present === 4 ? 'available' : 'partial',
     rights: field(rights),
     producedBy: field(producedBy),
     contributors: field(contributors),
+    // A guarantor is a person who accepts responsibility for the claim, not a role in a tool.
+    // Reported, never derived from a review record (v6 M-01).
+    guarantor: field(guarantor),
     note: 'reported by the caller; not verified, and absence is not permission',
   }
 }
