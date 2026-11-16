@@ -1,0 +1,26 @@
+{
+  "schema": "research/claim-ledger/1",
+  "note": "Claims carried by this artifact. Every claim must cite an anchor from the parse fixture and a quote that occurs verbatim in that anchor. This is a check of fidelity, not of truth: a claim can be perfectly quoted and still be wrong.",
+  "source": "synthetic-2page.pdf",
+  "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+  "claims": [
+    {
+      "id": "C-01",
+      "text": "the fixture asserts an intermediate-organisation deficit",
+      "anchor": "#/texts/0",
+      "quote": "Finding A: intermediate-organisation deficit is the core of social atomisation.",
+      "strength": "quoted",
+      "scope": "this synthetic fixture only",
+      "falsifier": "the anchor text no longer contains this sentence"
+    },
+    {
+      "id": "C-02",
+      "text": "the fixture distinguishes mobility from a definition",
+      "anchor": "#/texts/1",
+      "quote": "Finding B: population mobility is one mechanism, not a definition.",
+      "strength": "quoted",
+      "scope": "this synthetic fixture only",
+      "falsifier": "the anchor text no longer contains this sentence"
+    }
+  ]
+}

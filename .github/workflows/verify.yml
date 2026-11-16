@@ -49,3 +49,8 @@ jobs:
       # (docs/w03/findings/lead-probes.md), not something a green check should paper over.
       - name: Reading evidence loop (locator fidelity + verified read-back)
         run: node tools/w03/verify-reading-loop.mjs
+
+      # Claim fidelity: every claim must cite an anchor and a quote that occurs verbatim in it.
+      # Proves the citation can be checked, not that the claim is true.
+      - name: Claim ledger (quote fidelity + negative control)
+        run: node tools/w04/verify-claims.mjs
