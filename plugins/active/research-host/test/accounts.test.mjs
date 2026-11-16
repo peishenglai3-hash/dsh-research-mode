@@ -53,11 +53,13 @@ test('a complete accounting block is echoed verbatim and marked reported', async
       rights: 'internal-only (reported)',
       producedBy: 'deepseek-flash (drafting), human (review)',
       contributors: 'Lai Peisheng (author)',
+      guarantor: 'Lai Peisheng (accepts responsibility)',
     })
     const provenance = await getProvenance(workspace, projectId, recorded.artifact.id)
     assert.equal(provenance.accounts.status, 'available')
     assert.equal(provenance.accounts.producedBy.value, 'deepseek-flash (drafting), human (review)')
     assert.equal(provenance.accounts.contributors.value, 'Lai Peisheng (author)')
+    assert.equal(provenance.accounts.guarantor.value, 'Lai Peisheng (accepts responsibility)')
     assert.match(provenance.accounts.note, /not verified/)
   } finally {
     await rm(workspace, { recursive: true, force: true })
