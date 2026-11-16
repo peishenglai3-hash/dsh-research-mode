@@ -232,12 +232,13 @@ window.__ModuleLoader__.load({
           effective?.status === 'ambiguous'
             ? effective.projects.map((project) => h('button', {
               key: project.id, type: 'button', onClick: () => setChosen(project.id),
-              style: { padding: '2px 8px', borderRadius: '999px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '11px', color: C.text, background: C.hover, border: `1px solid ${C.accent}` },
+              style: { padding: '2px 8px', borderRadius: '999px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '11px', color: C.text, background: C.hover, border: `1px dashed ${C.accent}` },
             }, project.id))
             : null),
-        h('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } },
+        h('div', { role: 'tablist', 'aria-label': '研究面板视图', style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } },
           MODES.map(([id, label]) => h('button', {
             key: id, type: 'button', onClick: () => setMode(id),
+            role: 'tab', id: `hub-tab-${id}`, 'aria-selected': mode === id, tabIndex: mode === id ? 0 : -1,
             style: {
               padding: '5px 10px', borderRadius: '999px', cursor: 'pointer', fontFamily: 'inherit', fontSize: '11px',
               color: mode === id ? C.text : C.muted,
@@ -245,7 +246,7 @@ window.__ModuleLoader__.load({
               border: `1px solid ${mode === id ? C.accent : C.border}`,
             },
           }, label))),
-        error ? h('p', { style: { margin: 0, fontSize: '12px', color: C.accent } }, `读取失败: ${error}`) : null,
+        error ? h('p', { role: 'status', 'aria-live': 'polite', style: { margin: 0, fontSize: '12px', color: C.accent } }, `读取失败: ${error}`) : null,
         mode === 'provenance'
           ? h('p', { style: { margin: 0, fontSize: '11.5px', color: C.muted } },
               `证据链：${artifacts.length} 个 artifact；7 面中 review 面按 reviews/ 读取时派生，其余 6 面来自不可变 sidecar。`)
@@ -267,8 +268,8 @@ window.__ModuleLoader__.load({
                 h('div', { style: { wordBreak: 'break-all', marginTop: '4px' } }, `db sha256: ${litdb.dbSha256}`))
             : null,
         rows.length === 0
-          ? h('p', { style: { margin: 0, fontSize: '12px', color: C.muted } }, emptyText)
-          : h('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px' } },
+          ? h('p', { role: 'tabpanel', 'aria-labelledby': `hub-tab-${mode}`, style: { margin: 0, fontSize: '12px', color: C.muted } }, emptyText)
+          : h('div', { role: 'tabpanel', 'aria-labelledby': `hub-tab-${mode}`, style: { display: 'flex', flexDirection: 'column', gap: '8px' } },
               rows.map((row) => {
                 if (mode === 'reviewer') {
                   return h('section', { key: row.artifactId, style: { background: C.panel, border: `1px solid ${C.border}`, borderRadius: '10px', padding: '10px', fontSize: '11.5px' } },
