@@ -54,3 +54,7 @@ jobs:
       # Proves the citation can be checked, not that the claim is true.
       - name: Claim ledger (quote fidelity + negative control)
         run: node tools/w04/verify-claims.mjs
+
+      # Static ARIA contract for the hub panel (with its own negative control).
+      - name: Accessibility contract
+        run: node tools/w04/check-a11y.mjs
