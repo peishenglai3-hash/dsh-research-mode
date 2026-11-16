@@ -66,19 +66,29 @@ window.__ModuleLoader__.load({
       return { ...scope, status: 'selected', projectId }
     }
 
-    // The provenance card's number must mean the same thing here as in research_host's
-    // getProvenance: an artifact whose review is recorded counts its review face as available,
-    // even though the immutable sidecar still says "not run" (the sidecar is a creation-time
-    // snapshot). Kept as a pure function so it can be tested without a DOM.
-    function faceSummary(row, reviews) {
-      const faces = Object.entries(row?.provenance ?? {})
+    // Three states, not a score. The W04 review (v2/v4) found that a single fraction over seven
+    // heterogeneous faces is a pseudo-metric: it counts existence, not strength, and reads to a
+    // researcher as "how good is this". Each layer below answers one different question, and says
+    // which:
+    //   recorded  — this row came from a sidecar, so the artifact exists
+    //   checkable — it carries a locator (literature) or producer code, so someone else can check
+    //   judged    — a review record exists; whether its signature holds needs
+    //               research_review_verify, which this panel cannot run
+    // A higher layer does not imply the lower ones are strong. Nothing here is a grade.
+    function evidenceLayers(row, reviews) {
+      const faces = row?.provenance ?? {}
+      const available = (key) => faces[key]?.status === 'available'
       const reviewDerived = (reviews ?? []).some((review) => review?.artifactId === row?.id)
-      const available = faces.filter(([key, face]) => (key === 'review' && reviewDerived
-        ? true
-        : face?.status === 'available')).length
-      // Matches FACE_KEYS in research-host/lib/store.js; an older sidecar may carry fewer keys,
-      // but the denominator must not silently shrink.
-      return { available, total: 7, reviewDerived }
+      const locator = available('literature')
+      const producerCode = available('code')
+      return {
+        recorded: Boolean(row?.id),
+        locator,
+        producerCode,
+        checkable: locator || producerCode,
+        judged: available('review') || reviewDerived,
+        reviewDerived,
+      }
     }
 
     function HubBody({ useTabInfo, sessionId }) {
@@ -284,14 +294,19 @@ window.__ModuleLoader__.load({
                     h('div', { style: { color: C.muted, marginTop: '4px' } }, `${row.uid} · ${row.research_theme}`))
                 }
                 const checksum = typeof row.checksum === 'string' ? row.checksum : row.checksum?.value ?? row.id
-                const { available, total: faceTotal, reviewDerived } = faceSummary(row, reviews)
+                const layers = evidenceLayers(row, reviews)
+                const summary = layers.checkable
+                  ? `可核对（${layers.locator ? '有定位' : '有产出代码'}）`
+                  : '可核对（缺定位与产出代码）'
                 return h('section', { key: row.id, style: { background: C.panel, border: `1px solid ${C.border}`, borderRadius: '10px', padding: '10px', fontSize: '11.5px' } },
                   h('div', { style: { display: 'flex', justifyContent: 'space-between', gap: '8px' } },
                     h('strong', { style: { fontSize: '12.5px' } }, row.title),
                     h('code', { style: { color: C.muted } }, String(checksum).slice(0, 16))),
                   mode === 'provenance'
                     ? h('div', { style: { color: C.muted, marginTop: '4px' } },
-                        `${available}/${faceTotal} 面有记录（available ≠ 已验证${reviewDerived ? '；review 面按 reviews/ 派生' : ''}）`)
+                        `记录：${layers.recorded ? '有' : '无'} · ${summary} · 已判定：${layers.judged ? '有复核记录' : '无'}`,
+                        h('div', { style: { marginTop: '2px', fontSize: '10.5px' } },
+                          '签名是否有效需用 research_review_verify 校验；本面板只读 sidecar 与 reviews/。'))
                     : h('div', { style: { color: C.muted, marginTop: '4px' } }, `checksum: ${checksum}`))
               })),
         tab ? h('p', { style: { margin: 0, fontSize: '10.5px', color: C.muted } }, `${tab.kind} · ${tab.title}`) : null,
@@ -300,7 +315,7 @@ window.__ModuleLoader__.load({
 
     return {
       inject: ['slots', 'locale', 'sidebarRightTabs', 'remote', 'remote.workspaceFiles', 'sessions'],
-      _internals: { projectIdFromCwd, resolveProjectScope, scopeAfterChoice, faceSummary },
+      _internals: { projectIdFromCwd, resolveProjectScope, scopeAfterChoice, evidenceLayers },
       apply(ctx) {
         window.__researchHubContext = ctx
         ctx.effect(() => ctx.sidebarRightTabs.register({

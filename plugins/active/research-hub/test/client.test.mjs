@@ -171,24 +171,49 @@ function sidecar(overrides = {}) {
   }
 }
 
-test('face summary counts an artifact with no recorded review the same way the sidecar does', () => {
-  const summary = plugin._internals.faceSummary(sidecar(), [])
-  assert.equal(summary.available, 4)
-  assert.equal(summary.total, 7)
-  assert.equal(summary.reviewDerived, false)
-})
-
-test('face summary derives the review face when a review record exists', () => {
+test('evidence layers: recorded alone, with no locator or code, is not checkable', () => {
   const row = sidecar()
-  const summary = plugin._internals.faceSummary(row, [{ artifactId: row.id, decision: 'accept' }])
-  assert.equal(summary.available, 5, 'the recorded review makes the review face available')
-  assert.equal(summary.reviewDerived, true)
+  // The shared fixture marks literature and code as recorded; strip both so this test is about
+  // the case the layer is meant to catch — an artifact nobody else can check.
+  row.provenance.literature = { status: 'unavailable', reason: 'not recorded' }
+  row.provenance.code = { status: 'unavailable', reason: 'not recorded' }
+  const layers = plugin._internals.evidenceLayers(row, [])
+  assert.equal(layers.recorded, true)
+  assert.equal(layers.locator, false)
+  assert.equal(layers.checkable, false)
+  assert.equal(layers.judged, false)
+  // No score-shaped fields may survive: the whole point of E3 is that `/7` is gone.
+  assert.equal('available' in layers, false)
+  assert.equal('total' in layers, false)
 })
 
-test('face summary keeps a denominator of 7 even for an older sidecar with fewer keys', () => {
-  const row = { id: 'b'.repeat(64), provenance: { reproducibility: { status: 'available' } } }
-  const summary = plugin._internals.faceSummary(row, [])
-  assert.equal(summary.total, 7, 'the denominator must not shrink with the sidecar')
-  assert.equal(summary.available, 1)
+test('evidence layers: a locator makes the artifact checkable', () => {
+  const row = sidecar()
+  row.provenance.literature = { status: 'available', value: 'anchor #/texts/0' }
+  const layers = plugin._internals.evidenceLayers(row, [])
+  assert.equal(layers.locator, true)
+  assert.equal(layers.checkable, true)
 })
 
+test('evidence layers: producer code also makes it checkable', () => {
+  const row = sidecar()
+  row.provenance.code = { status: 'available', value: 'python analyze.py' }
+  row.provenance.literature = { status: 'unavailable', reason: 'not recorded' }
+  const layers = plugin._internals.evidenceLayers(row, [])
+  assert.equal(layers.producerCode, true)
+  assert.equal(layers.checkable, true)
+})
+
+test('evidence layers: a recorded review makes it judged, even if the sidecar snapshot says otherwise', () => {
+  const row = sidecar()
+  const layers = plugin._internals.evidenceLayers(row, [{ artifactId: row.id, decision: 'accept' }])
+  assert.equal(layers.judged, true)
+  assert.equal(layers.reviewDerived, true)
+})
+
+test('evidence layers: another artifact\'s review does not make this one judged', () => {
+  const row = sidecar()
+  const layers = plugin._internals.evidenceLayers(row, [{ artifactId: 'c'.repeat(64), decision: 'accept' }])
+  assert.equal(layers.judged, false)
+  assert.equal(layers.reviewDerived, false)
+})
