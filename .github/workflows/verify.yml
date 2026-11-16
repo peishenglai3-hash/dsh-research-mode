@@ -55,6 +55,10 @@ jobs:
       - name: Claim ledger (quote fidelity + negative control)
         run: node tools/w04/verify-claims.mjs
 
+      # Ten labelled cases: a checker that always said PASS would fail five of them.
+      - name: Claim checker gold set
+        run: node tools/w04/verify-claims.mjs --gold
+
       # Static ARIA contract for the hub panel (with its own negative control).
       - name: Accessibility contract
         run: node tools/w04/check-a11y.mjs
