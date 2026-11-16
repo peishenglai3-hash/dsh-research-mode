@@ -31,6 +31,9 @@ must be able to carry its own rights/credit** without any of it being inferred.
 
 - `research_artifact_record` gains three optional parameters; everything else is unchanged. This is
   an addition to the public tool surface, so it is a minor bump rather than a patch.
+- **The hub no longer shows `/7`.** That fraction counted seven heterogeneous faces and read as a
+  quality score; the W04 review found it to be a pseudo-metric. Each artifact now shows three
+  separate states — **记录 / 可核对 / 已判定** — and says which review check the panel cannot run.
 - CI now runs the claim-ledger check.
 
 ### Documentation
