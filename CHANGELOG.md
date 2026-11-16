@@ -4,6 +4,42 @@ All notable changes to this repository. Versions here are **repository milestone
 individual npm packages carry their own versions (see each `plugins/active/*/package.json`), and a
 repository milestone does not imply every package moved.
 
+## [0.2.2] — 2026-11-16 — claim ledger + accounting
+
+The first increment after the W04 vision review. Two ideas survived the eight critiques and the
+three-criterion arbitration: **claims must be checkable against their source**, and **an artifact
+must be able to carry its own rights/credit** without any of it being inferred.
+
+> **Not yet published to npm.** The code is in the repository and CI; publishing needs an
+> interactive WebAuthn window (see 0.1.2's note).
+
+### Added
+
+- **Claim ledger** (`research/claim-ledger/1`): a plain JSON artifact carrying
+  `claims[]{text, anchor, quote, strength, scope, falsifier}`. No new tool — it is recorded with
+  the existing `research_artifact_record`.
+- `tools/w04/verify-claims.mjs`: every claim must cite an existing anchor and a quote that occurs
+  **verbatim** in it; a fabricated quote is rejected by a negative control. It proves the citation
+  can be checked, not that the claim is true.
+- **`accounts` on artifacts**: `research_artifact_record` accepts optional `rights`,
+  `producedBy` and `contributors`. `research_provenance_get` echoes them as
+  `accounts{status, rights, producedBy, contributors, note}`, each marked `mode: 'reported'`.
+  Missing fields stay `unavailable` — **absence of a rights statement is not permission**, and
+  there is a test asserting no default `"free"` appears.
+
+### Changed
+
+- `research_artifact_record` gains three optional parameters; everything else is unchanged. This is
+  an addition to the public tool surface, so it is a minor bump rather than a patch.
+- CI now runs the claim-ledger check.
+
+### Documentation
+
+- `docs/w04/`: eight vision critiques (political economy, epistemology, cognitive science, HCI,
+  architecture, sociology of science, equity, AI limits), the open-source landscape, the
+  normalization receipt (including an incident where a cross-volume move followed junctions and
+  deleted both repositories' plugin trees — restored from git, 83 tests green), and the plan.
+
 ## [0.1.2] — 2026-11-11
 
 Follow-up to an independent second-round review. Two bypasses it found are closed, and the

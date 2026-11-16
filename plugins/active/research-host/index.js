@@ -88,6 +88,9 @@ const TOOLS = [
       messages: faceInput('Optional session/message anchor.'),
       review: faceInput('Optional review state.'),
       literature: faceInput('Optional literature anchors, e.g. DOIs.'),
+      rights: { type: 'string', description: 'Optional REPORTED rights/terms for this artifact (e.g. CC-BY-4.0, internal-only). Reported, not verified; absence is not permission.' },
+      producedBy: { type: 'string', description: 'Optional REPORTED producer (model/provider or person). Reported, not verified.' },
+      contributors: { type: 'string', description: 'Optional REPORTED contributors, e.g. "Lai Peisheng (author); model (drafting)". Reported, not verified.' },
     },
     ['projectId', 'title'],
     async (args, exec) => {

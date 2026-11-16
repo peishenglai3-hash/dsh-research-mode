@@ -192,6 +192,10 @@ export async function recordArtifact(workspace, projectId, input = {}, io = node
     node: process.version,
     python: process.env.PYTHON_VERSION ?? null,
   }
+  // Accounting is OPTIONAL and always reported, never inferred. An artifact with no accounting
+  // block says so; it is not assumed to be free to redistribute or authorless. See
+  // docs/w04/W04-PLAN.md §4 E2.
+  const accounts = normalizeAccounts(input)
   const artifact = {
     id: digest,
     title,
@@ -201,9 +205,9 @@ export async function recordArtifact(workspace, projectId, input = {}, io = node
     bytes: bytes.byteLength,
     checksum: { algorithm: 'sha256', value: digest },
     source: originalName,
+    ...(accounts ? { accounts } : {}),
     provenance: {
-      code: face(input.code, 'producer code was not recorded'),
-      execution: face(input.log, 'execution log was not recorded'),
+      code: face(input.code, 'producer code was not recorded'),      execution: face(input.log, 'execution log was not recorded'),
       environment: face(environment, 'environment inventory was not recorded'),
       messages: face(input.messages, 'session message anchor was not recorded'),
       reproducibility: face({ checksum: digest, bytes: bytes.byteLength, source: originalName }, 'reproducibility face unavailable'),
@@ -317,6 +321,11 @@ export async function getProvenance(workspace, projectId, artifactId, io = nodeI
     // both are answered separately on purpose.
     payloadVerified,
     payloadBytes,
+    // Reported accounting, or an explicit statement that none was recorded. Never inferred.
+    accounts: artifact.accounts ?? {
+      status: 'unavailable',
+      reason: 'no accounting block was recorded; absence is not permission',
+    },
     // Keep the recorded snapshot visible so recorded state is distinguishable from derived state.
     reviewSnapshot: snapshot,
   }
@@ -326,8 +335,29 @@ const REVIEW_DECISIONS = new Set(['accept', 'revise', 'reject'])
 const REVIEW_TEMPLATES = new Set(['general', 'evidence', 'reproducibility'])
 const REVIEW_AUTHORITIES = new Set(['author', 'reviewer', 'auditor'])
 
-function signReview(review) {
-  return sha256(JSON.stringify({
+// Optional accounting attached to an artifact: who produced it, under what rights, with whom.
+// Every field is a REPORTED string. Nothing here is verified, and a missing field stays missing —
+// in particular, absence of a rights statement must never be read as "free to redistribute".
+function normalizeAccounts(input = {}) {
+  const text = (value) => (typeof value === 'string' && value.trim() ? value.trim() : null)
+  const rights = text(input.rights)
+  const producedBy = text(input.producedBy)
+  const contributors = text(input.contributors)
+  if (!rights && !producedBy && !contributors) return null
+  const field = (value) => (value
+    ? { status: 'available', value, mode: 'reported' }
+    : { status: 'unavailable', reason: 'not reported' })
+  const present = [rights, producedBy, contributors].filter(Boolean).length
+  return {
+    status: present === 3 ? 'available' : 'partial',
+    rights: field(rights),
+    producedBy: field(producedBy),
+    contributors: field(contributors),
+    note: 'reported by the caller; not verified, and absence is not permission',
+  }
+}
+
+function signReview(review) {  return sha256(JSON.stringify({
     artifactId: review.artifactId,
     decision: review.decision,
     notes: review.notes,
