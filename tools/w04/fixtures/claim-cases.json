@@ -1,0 +1,127 @@
+{
+  "note": "Ten labelled cases for the claim checker: five that must pass, five that must fail for a named reason. They exercise the checker, not the parser, and they say nothing about any real paper.",
+  "cases": [
+    {
+      "id": "G01",
+      "expect": "pass",
+      "reason": "two well-formed claims",
+      "ledger": {
+        "schema": "research/claim-ledger/1",
+        "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+        "claims": [
+          { "id": "a1", "text": "the fixture asserts an intermediate-organisation deficit", "anchor": "#/texts/0", "quote": "Finding A: intermediate-organisation deficit is the core of social atomisation.", "strength": "quoted", "scope": "fixture" },
+          { "id": "a2", "text": "the fixture distinguishes mobility from a definition", "anchor": "#/texts/1", "quote": "Finding B: population mobility is one mechanism, not a definition.", "strength": "quoted", "scope": "fixture" }
+        ]
+      }
+    },
+    {
+      "id": "G02",
+      "expect": "pass",
+      "reason": "a short marker quote is enough to be checkable",
+      "ledger": {
+        "schema": "research/claim-ledger/1",
+        "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+        "claims": [
+          { "id": "b1", "text": "the first page is identifiable", "anchor": "#/texts/0", "quote": "ANCHOR-P1-UNIQUE-7F3A", "strength": "quoted", "scope": "fixture" }
+        ]
+      }
+    },
+    {
+      "id": "G03",
+      "expect": "pass",
+      "reason": "second anchor only",
+      "ledger": {
+        "schema": "research/claim-ledger/1",
+        "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+        "claims": [
+          { "id": "c1", "text": "page two carries a distinct marker", "anchor": "#/texts/1", "quote": "ANCHOR-P2-UNIQUE-C9D1", "strength": "quoted", "scope": "fixture" }
+        ]
+      }
+    },
+    {
+      "id": "G04",
+      "expect": "pass",
+      "reason": "the whole anchor text as the quote",
+      "ledger": {
+        "schema": "research/claim-ledger/1",
+        "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+        "claims": [
+          { "id": "d1", "text": "the anchor in full", "anchor": "#/texts/0", "quote": "W02-S1 SYNTHETIC FIXTURE (NOT REAL RESEARCH DATA) Finding A: intermediate-organisation deficit is the core of social atomisation. Scope: this sentence is invented for a plumbing test and carries no scientific claim. ANCHOR-P1-UNIQUE-7F3A", "strength": "quoted", "scope": "fixture" }
+        ]
+      }
+    },
+    {
+      "id": "G05",
+      "expect": "pass",
+      "reason": "an inferred claim may still quote verbatim",
+      "ledger": {
+        "schema": "research/claim-ledger/1",
+        "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+        "claims": [
+          { "id": "e1", "text": "the scope line disclaims the fixture", "anchor": "#/texts/0", "quote": "carries no scientific claim", "strength": "inferred", "scope": "fixture" }
+        ]
+      }
+    },
+    {
+      "id": "G06",
+      "expect": "fail",
+      "reason": "fabricated quote",
+      "ledger": {
+        "schema": "research/claim-ledger/1",
+        "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+        "claims": [
+          { "id": "f1", "text": "invented", "anchor": "#/texts/0", "quote": "Finding Z: this sentence does not exist.", "strength": "quoted", "scope": "fixture" }
+        ]
+      }
+    },
+    {
+      "id": "G07",
+      "expect": "fail",
+      "reason": "anchor does not exist",
+      "ledger": {
+        "schema": "research/claim-ledger/1",
+        "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+        "claims": [
+          { "id": "f2", "text": "dangling anchor", "anchor": "#/texts/9", "quote": "anything", "strength": "quoted", "scope": "fixture" }
+        ]
+      }
+    },
+    {
+      "id": "G08",
+      "expect": "fail",
+      "reason": "empty claim text",
+      "ledger": {
+        "schema": "research/claim-ledger/1",
+        "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+        "claims": [
+          { "id": "f3", "text": "   ", "anchor": "#/texts/0", "quote": "ANCHOR-P1-UNIQUE-7F3A", "strength": "quoted", "scope": "fixture" }
+        ]
+      }
+    },
+    {
+      "id": "G09",
+      "expect": "fail",
+      "reason": "unknown strength",
+      "ledger": {
+        "schema": "research/claim-ledger/1",
+        "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+        "claims": [
+          { "id": "f4", "text": "bad strength", "anchor": "#/texts/0", "quote": "ANCHOR-P1-UNIQUE-7F3A", "strength": "certain", "scope": "fixture" }
+        ]
+      }
+    },
+    {
+      "id": "G10",
+      "expect": "fail",
+      "reason": "duplicate ids",
+      "ledger": {
+        "schema": "research/claim-ledger/1",
+        "sourceSha256": "8916a0ba98d909ef8c0d6b7ba42998c8280c38264782f391ed58ce6b78a4e648",
+        "claims": [
+          { "id": "dup", "text": "one", "anchor": "#/texts/0", "quote": "ANCHOR-P1-UNIQUE-7F3A", "strength": "quoted", "scope": "fixture" },
+          { "id": "dup", "text": "two", "anchor": "#/texts/1", "quote": "ANCHOR-P2-UNIQUE-C9D1", "strength": "quoted", "scope": "fixture" }
+        ]
+      }
+    }
+  ]
+}
